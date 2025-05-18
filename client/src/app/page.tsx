@@ -1,5 +1,3 @@
-export const dynamic = 'force-static';
-
 export const metadata = {
     title: 'Цаг товлолт, захиалгын платформ | TimeLink',
     description: 'TimeLink нь хувь хүн болон бизнесүүдэд зориулсан цаг товлох систем юм.',

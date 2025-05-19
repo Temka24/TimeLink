@@ -28,7 +28,7 @@ export const metadata = {
 export default function HomePage() {
     return (
         <>
-            <div>Ok</div>
+            <div>Okey thit is SSG</div>
         </>
     );
 }

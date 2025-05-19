@@ -25,9 +25,7 @@ const demoTimes = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00'
 
 export default function DemoPage() {
     const [date, setDate] = useState<Date | undefined>(undefined);
-    const imageUrl =
-        'https://images.unsplash.com/photo-1544717305-2782549b5136?ixid=MXwxMjA3fDB8MHxzZWFyY2h8NTR8fHRlYWNoZXJ8ZW58MHx8MHw%3D&ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80&quot;),%20url(&quot;/assets/app/empty-avatar.png&quot;);%22';
-
+   
     const [dateInfo, setDateInfo] = useState<{
         dayName: string;
         monthName: string;
@@ -54,7 +52,7 @@ export default function DemoPage() {
                     <div className="px-[20px] bg-demo-left pt-[30px] flex flex-col gap-[15px] min-w-1/2 rounded-2xl items-center justify-start">
                         <div className="w-[70px] aspect-square border-white border-3 rounded-full overflow-hidden">
                             <Image
-                                src={imageUrl}
+                                src="/photo-women.avif"
                                 alt="Profile"
                                 width={70}
                                 height={70}

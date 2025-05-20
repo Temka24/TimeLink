@@ -108,7 +108,7 @@ export default function DemoPage() {
                             />
                         )}
 
-                        <p className="mt-[30px] text-[12px] text-note">
+                        <p className="mt-[30px] text-[12px] text-note text-center">
                             Таны захиалгын хуудас ингэж харагдах болно.
                         </p>
                     </div>
@@ -173,8 +173,10 @@ export default function DemoPage() {
                         </div>
                     ) : (
                         <div className="px-[40px] py-[30px] flex flex-col items-start justify-start gap-[10px] min-w-2/3 relative">
-                            <h1>Захиалга баталгаажуулах</h1>
-                            <div className="flex items-center justify-center gap-1.5">
+                            <h1 className="font-semibold text-[20px] self-center">
+                                Захиалга баталгаажуулах
+                            </h1>
+                            <div className="flex items-start justify-center gap-2 text-green-700 font-[600] mt-[10px]">
                                 <CalendarClock />
                                 <div>
                                     <p>
@@ -186,20 +188,24 @@ export default function DemoPage() {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex gap-1 items-center justify-center">
+                            <div className="flex gap-2 items-start justify-center font-semibold">
                                 <Clock />
                                 {selectedInterval} минут
                             </div>
                             <ClientInfo />
-                            <p className="text-note text-[13px] leading-4">
+                            <p className="text-note text-[12px] leading-4 tracking-normal mt-[10px]">
                                 Энэ бол зүгээр нэг жишээ гэдгийг анхаарна уу. Тиймээс таны нэр,
                                 имэйлийг хадгалахгүй бөгөөд танд имэйлээр мэдэгдэл илгээхгүй.
                             </p>
-                            <Button className="absolute bottom-[20px] left-[20px] text-demo-left border-demo-left cursor-pointer" variant="outline">
+                            <Button
+                                className="absolute bottom-[20px] left-[20px] text-demo-left border-demo-left cursor-pointer"
+                                variant="outline"
+                                onClick={() => {
+                                    setSelectedTime('');
+                                    setDate(undefined);
+                                }}
+                            >
                                 <ChevronLeft /> Буцах
-                            </Button>
-                             <Button className="absolute bottom-[20px] right-[20px] text-white bg-demo-left cursor-pointer" >
-                                Захиалах
                             </Button>
                         </div>
                     )}

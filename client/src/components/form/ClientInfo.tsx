@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '../ui/button';
 
 // 1. Schema
 const schema = z.object({
@@ -25,34 +26,41 @@ export default function ClientInfo() {
     };
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div>
-                    <label>Овог</label>
-                    <input {...register('firstName')} className="border p-2 w-full" />
-                    <p className="text-red-500 text-sm">{errors.firstName?.message}</p>
+            <form
+                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col items-stretch justify-center gap-[10px] mt-[20px]"
+            >
+                <div className="flex gap-[20px] items-center justify-center">
+                    <div>
+                        <label className="font-bold text-[14px]">Овог *</label>
+                        <input
+                            {...register('firstName')}
+                            className="border p-2 w-full rounded-md"
+                        />
+                        <p className="text-red-500 text-sm">{errors.firstName?.message}</p>
+                    </div>
+
+                    <div>
+                        <label className="font-bold text-[14px]">Өөрийн нэр *</label>
+                        <input {...register('lastName')} className="border p-2 w-full rounded-md" />
+                        <p className="text-red-500 text-sm">{errors.lastName?.message}</p>
+                    </div>
                 </div>
 
                 <div>
-                    <label>Өөрийг нэр</label>
-                    <input {...register('lastName')} className="border p-2 w-full" />
-                    <p className="text-red-500 text-sm">{errors.lastName?.message}</p>
-                </div>
-
-                <div>
-                    <label>Имэйл</label>
-                    <input {...register('email')} className="border p-2 w-full" />
+                    <label className="font-bold text-[14px]">Имэйл *</label>
+                    <input {...register('email')} className="border p-2 w-full rounded-md" />
                     <p className="text-red-500 text-sm">{errors.email?.message}</p>
                 </div>
 
                 <div>
-                    <label>Утасны дугаар</label>
-                    <input {...register('phone')} className="border p-2 w-full" />
+                    <label className="font-bold text-[14px]">Утасны дугаар *</label>
+                    <input {...register('phone')} type='number' className="border p-2 w-full rounded-md" />
                     <p className="text-red-500 text-sm">{errors.phone?.message}</p>
                 </div>
-
-                <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-                    Илгээх
-                </button>
+                <Button type='submit' className="absolute bottom-[20px] right-[20px] text-white bg-demo-left cursor-pointer">
+                    Захиалах
+                </Button>
             </form>
         </>
     );

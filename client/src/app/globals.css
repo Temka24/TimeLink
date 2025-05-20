@@ -45,9 +45,9 @@
 
 @theme {
     --breakpoint-*: initial;
-    --breakpoint-xs: 450px;
-    --breakpoint-sm: 600px;
-    --breakpoint-md: 750px;
+    --breakpoint-sm: 450px;
+    --breakpoint-md: 600px;
+    --breakpoint-xs: 750px;
     --breakpoint-lg: 1024px;
     --color-demo-left: rgb(71, 85, 105);
     --color-note: #6b7280;
@@ -143,3 +143,4 @@
 ::-webkit-scrollbar-track {
     background-color: #fff;
 }
+

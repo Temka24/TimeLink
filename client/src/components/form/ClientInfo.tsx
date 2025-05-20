@@ -14,7 +14,11 @@ const schema = z.object({
 // 2. Type
 type FormData = z.infer<typeof schema>;
 
-export default function ClientInfo() {
+type Props = {
+    setIsOpenSuccess?: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export default function ClientInfo({ setIsOpenSuccess }: Props) {
     const {
         register,
         handleSubmit,
@@ -23,6 +27,9 @@ export default function ClientInfo() {
 
     const onSubmit = (data: FormData) => {
         console.log('Form data:', data);
+        if (setIsOpenSuccess) {
+            setIsOpenSuccess(true);
+        }
     };
     return (
         <>
@@ -55,10 +62,17 @@ export default function ClientInfo() {
 
                 <div>
                     <label className="font-bold text-[14px]">Утасны дугаар *</label>
-                    <input {...register('phone')} type='number' className="border p-2 w-full rounded-md" />
+                    <input
+                        {...register('phone')}
+                        type="number"
+                        className="border p-2 w-full rounded-md"
+                    />
                     <p className="text-red-500 text-sm">{errors.phone?.message}</p>
                 </div>
-                <Button type='submit' className="absolute bottom-[20px] right-[20px] text-white bg-demo-left cursor-pointer">
+                <Button
+                    type="submit"
+                    className="absolute bottom-[20px] right-[20px] text-white bg-demo-left cursor-pointer"
+                >
                     Захиалах
                 </Button>
             </form>

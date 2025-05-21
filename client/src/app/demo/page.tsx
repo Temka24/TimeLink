@@ -9,6 +9,7 @@ import ClientInfo from '@/components/form/ClientInfo';
 import { Button } from '@/components/ui/button';
 import LocationMap from '@/components/features/LocationMap';
 import { motion, AnimatePresence } from 'motion/react';
+import { useRouter } from 'next/navigation';
 
 const weekdays = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
 
@@ -27,7 +28,7 @@ const months = [
     'Арванхоёрдугаар сарын',
 ];
 
-const bookingLocation = 'Улаанбаатар, Central Tower 9 давхар 901 тоот';
+const bookingLocation = 'Улаанбаатар, Central Tower 9 давхар 901';
 
 const demoTimes = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
 
@@ -47,6 +48,8 @@ export default function DemoPage() {
     const [isOpenConfirmSection, setIsOpenConfirmSection] = useState<boolean>(false);
     const [isOpenMap, setIsOpenMap] = useState<boolean>(false);
     const [isOpenSuccess, setIsOpenSuccess] = useState<boolean>(false);
+
+    const router = useRouter();
 
     useEffect(() => {
         if (date) {
@@ -287,7 +290,7 @@ export default function DemoPage() {
                         animate={{ y: 0 }}
                         transition={{ duration: 0.5 }}
                         key="C"
-                        className="h-[600px] mx-auto relative overflow-x-hidden overflow-y-scroll md:max-w-[450px] max-w-[350px] shadow-lg rounded-3xl flex flex-col items-center gap-[10px] justify-center md:py-[50px] pb-[20px] pt-[20px] px-[60px]"
+                        className="h-[600px] mx-auto relative overflow-x-hidden overflow-y-scroll md:max-w-[450px] max-w-[350px] shadow-lg rounded-3xl flex flex-col items-center gap-[10px] justify-center md:py-[50px] pt-[70px] pb-[20px] px-[60px]"
                     >
                         <div className="text-green-700">
                             {' '}
@@ -326,7 +329,7 @@ export default function DemoPage() {
                         <p className="text-[15px] text-center">
                             Одоо өөрийнхөө захиалгын хуудсыг үүсгээрэй
                         </p>
-                        <Button className="bg-[#4f46e5] hover:bg-[#4f46e0] text-[18px] cursor-pointer font-[600] rounded-3xl py-[25px] px-[25px]">
+                        <Button onClick={() => router.push("/")} className="bg-[#4f46e5] hover:bg-[#4f46e0] text-[18px] cursor-pointer font-[600] rounded-3xl py-[25px] px-[25px]">
                             Эхэлцгээе
                         </Button>
                     </motion.div>

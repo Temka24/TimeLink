@@ -51,6 +51,8 @@
     --breakpoint-lg: 1024px;
     --color-demo-left: rgb(71, 85, 105);
     --color-note: #6b7280;
+    --color-hov-color: rgba(0, 0, 0, .05);
+    --color-main: #914bf1;
 }
 
 :root {

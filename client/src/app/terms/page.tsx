@@ -1,3 +1,4 @@
+// app/privacy-policy/page.tsx
 import fs from 'fs';
 import path from 'path';
 import ReactMarkdown from 'react-markdown';
@@ -7,7 +8,7 @@ import Footer from '@/components/sections/Footer';
 export const dynamic = 'force-dynamic';
 
 export default async function PrivacyPolicyPage() {
-    const filePath = path.join(process.cwd(), 'src', 'content', 'privacy.md');
+    const filePath = path.join(process.cwd(), 'src', 'content', 'terms.md');
     const fileContent = fs.readFileSync(filePath, 'utf-8');
 
     return (

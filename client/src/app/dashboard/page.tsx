@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/sections/Navbar';
 import Faq from '@/components/sections/Faq';
+import { Button } from '@/components/ui/button';
+import Footer from '@/components/sections/Footer';
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -20,8 +22,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import Footer from '@/components/sections/Footer';
 import {
     UsersRound,
     Plus,
@@ -35,6 +35,14 @@ import {
     Ellipsis,
     Check,
 } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 import { useNavbarStore } from '@/store/navbarStore';
 import { motion, AnimatePresence } from 'motion/react';
@@ -50,7 +58,14 @@ export type Booking = {
 export default function DashboardPage() {
     const roueter = useRouter();
     const [copied, setCopied] = useState<boolean>(false);
+    const [searchText, setSearchText] = useState<string>('');
     const currentSection = useNavbarStore((s) => s.current);
+    const [currentOpenTab, setCurrentOpenTab] = useState<'upcoming' | 'pending' | 'past'>(
+        'upcoming',
+    );
+
+    const [selectedBooking, setSelectedBooking] = useState('Бүх');
+    const [triggeredSearchText, setTriggeredSearchText] = useState('');
 
     const copyAction = async (text: string) => {
         try {
@@ -122,10 +137,13 @@ export default function DashboardPage() {
                                         className="border-dotted bg-hov-color cursor-pointer"
                                         onClick={() => roueter.push('/dashboard/new')}
                                     >
-                                        <Plus size="25px" /> Захиалах хуудас үүсгэх
+                                        <Plus size="25px" /> Захиалах хуудас нэмэх
                                     </Button>
                                 </div>
-                                <section className="mt-[20px] flex flex-col justify-start items-stretch gap-[20px]">
+                                <div className="mt-[30px] text-[14px]">
+                                    Таны үүсгэсэн цаг захиалах хуудсууд
+                                </div>
+                                <section className="mt-[10px] flex flex-col justify-start items-stretch gap-[20px]">
                                     {demoBooking.map((booking: Booking, i: number) => (
                                         <div
                                             key={i}
@@ -243,7 +261,94 @@ export default function DashboardPage() {
                                 transition={{ duration: 0.4 }}
                                 key="Booking"
                             >
-                                Booking
+                                <div className="flex items-center justify-start gap-[50px]">
+                                    <Select
+                                        value={selectedBooking}
+                                        onValueChange={setSelectedBooking}
+                                        defaultValue={selectedBooking}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Бүх захиалах хуудсууд" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectGroup>
+                                                <SelectItem
+                                                    value="Бүх"
+                                                    className="cursor-pointer font-extrabold"
+                                                >
+                                                    Бүх захиалах хуудсууд
+                                                </SelectItem>
+                                                {demoBooking.map((book, i: number) => (
+                                                    <SelectItem
+                                                        value={book.name}
+                                                        key={i}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        {book.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectGroup>
+                                        </SelectContent>
+                                    </Select>
+                                    <div className="flex items-center justify-center rounded-sm border overflow-hidden">
+                                        <input
+                                            type="text"
+                                            value={searchText}
+                                            onChange={(e) => setSearchText(e.target.value)}
+                                            placeholder="Нэр эсвэл имэйл ээр хайх"
+                                            className="px-2.5 py-1.5 text-[14px] focus:outline-none"
+                                        />
+                                        <Button
+                                            className="rounded-none cursor-pointer"
+                                            onClick={() => setTriggeredSearchText(searchText)}
+                                        >
+                                            Хайх
+                                        </Button>
+                                    </div>
+                                    <div>{triggeredSearchText}</div>
+                                </div>
+                                <div className="border-b border-hov-color flex items-center justify-start gap-[40px] mt-[30px] p-[10px]">
+                                    <div
+                                        className={clsx(
+                                            'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-11px] duration-100 before:w-0 before:h-[1px]',
+                                            currentOpenTab === 'upcoming'
+                                                ? 'before:w-full text-black before:bg-main'
+                                                : 'text-note before:bg-note',
+                                        )}
+                                        onClick={() => {
+                                            setCurrentOpenTab('upcoming');
+                                        }}
+                                    >
+                                        Удахгүй
+                                    </div>
+                                    <div
+                                        className={clsx(
+                                            'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-11px] duration-100 before:w-0 before:h-[1px]',
+                                            currentOpenTab === 'pending'
+                                                ? 'before:w-full text-black before:bg-main'
+                                                : 'text-note before:bg-note',
+                                        )}
+                                        onClick={() => {
+                                            setCurrentOpenTab('pending');
+                                        }}
+                                    >
+                                        Яг одоо
+                                    </div>
+                                    <div
+                                        className={clsx(
+                                            'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-11px] duration-100 before:w-0 before:h-[1px]',
+                                            currentOpenTab === 'past'
+                                                ? 'before:w-full text-black before:bg-main'
+                                                : 'text-note before:bg-note',
+                                        )}
+                                        onClick={() => {
+                                            setCurrentOpenTab('past');
+                                        }}
+                                    >
+                                        Өнгөрсөн
+                                    </div>
+                                </div>
+                                <div>{selectedBooking}</div>
                             </motion.div>
                         )}
 

@@ -329,7 +329,10 @@ export default function DemoPage() {
                         <p className="text-[15px] text-center">
                             Одоо өөрийнхөө захиалгын хуудсыг үүсгээрэй
                         </p>
-                        <Button onClick={() => router.push("/")} className="bg-[#4f46e5] hover:bg-[#4f46e0] text-[18px] cursor-pointer font-[600] rounded-3xl py-[25px] px-[25px]">
+                        <Button
+                            onClick={() => router.push('/')}
+                            className="bg-[#4f46e5] hover:bg-[#4f46e0] text-[18px] cursor-pointer font-[600] rounded-3xl py-[25px] px-[25px]"
+                        >
                             Эхэлцгээе
                         </Button>
                     </motion.div>

@@ -1,6 +1,8 @@
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import Footer from '@/components/sections/Footer';
+import OuterNavbar from '@/components/sections/outerNavbar';
 
 export const metadata = {
     title: 'Цаг товлолт, захиалгын платформ | TimeLink',
@@ -32,46 +34,34 @@ export const metadata = {
 export default function HomePage() {
     return (
         <>
-            <div className="w-[100vw] min-h-screen pt-[20px] overflow-hidden">
-                <div className="max-w-[1600px] mx-auto relative overflow-x-hidden w-screen shadow-lg rounded-3xl px-[40px] pb-[40px]">
-                    <nav className="flex items-center justify-center gap-[60vw] ">
-                        <section className="flex items-center justify-center gap-2">
-                            <Image src="/favicon.png" alt="logo" height={40} width={40} />
-                            <div className="text-[24px] font-semibold flex">
-                                <p className="text-[#914bf1]">Time</p>
-                                <p>Link</p>
-                            </div>
-                        </section>{' '}
-                        <Button className="cursor-pointer">
-                            <Link href="/login">Нэвтрэх</Link>
-                        </Button>
-                    </nav>
-                    <h1 className="text-center text-[40px] font-black flex mt-[130px] leading-[40px] flex-col items-center justify-center gap-0">
-                        Цаг товлолт, уулзалт бүртгэлийг автоматжуул
-                        <span className="text-[#914bf1]">хурдан, хялбар, үр дүнтэй шийдэл</span>
-                    </h1>
-                    <p className="mt-[30px] text-center max-w-[600px] mx-auto text-note tracking-wide">
-                        Цаг товлолтоо илүү хурдан хийж, эцэс төгсгөлгүй имэйл бичхээс салаарай. Таны
-                        өмнөөс бүх асуудлыг шийдэх болно
-                    </p>
-                    <div className="flex mt-[60px] items-center justify-center gap-[20px] font-semibold">
-                        <Button className="py-[25px] px-[40px] cursor-pointer text-[18px]">
-                            <Link href="/dashboard">Эхлэх</Link>
-                        </Button>
-                        <div className="shadow py-[13px] px-[35px] rounded-xl cursor-pointer text-[18px]">
-                            <Link href="/demo">Туршиж үзэх</Link>
-                        </div>
-                    </div>
-                    <div className="rounded-3xl overflow-hidden mt-[70px] flex justify-center items-center">
-                        <Image
-                            src="/demopage.png"
-                            alt="Туршилт зураг"
-                            height={0}
-                            width={800}
-                            className="object-cover h-auto"
-                        />
+            <div className="max-w-[1600px] mx-auto min-h-screen pt-[20px] relative overflow-x-hidden w-screen shadow-lg rounded-3xl px-[40px] pb-[40px]">
+                <OuterNavbar />
+                <h1 className="text-center text-[40px] font-black flex mt-[130px] leading-[40px] flex-col items-center justify-center gap-0">
+                    Цаг товлолт, уулзалт бүртгэлийг автоматжуул
+                    <span className="text-[#914bf1]">хурдан, хялбар, үр дүнтэй шийдэл</span>
+                </h1>
+                <p className="mt-[30px] text-center max-w-[600px] mx-auto text-note tracking-wide">
+                    Цаг товлолтоо илүү хурдан хийж, эцэс төгсгөлгүй имэйл бичхээс салаарай. Таны
+                    өмнөөс бүх асуудлыг шийдэх болно
+                </p>
+                <div className="flex mt-[60px] items-center justify-center gap-[20px] font-semibold">
+                    <Button className="py-[25px] px-[40px] cursor-pointer text-[18px]">
+                        <Link href="/dashboard">Эхлэх</Link>
+                    </Button>
+                    <div className="shadow py-[13px] px-[35px] rounded-xl cursor-pointer text-[18px]">
+                        <Link href="/demo">Туршиж үзэх</Link>
                     </div>
                 </div>
+                <div className="rounded-3xl overflow-hidden mt-[70px] flex justify-center items-center">
+                    <Image
+                        src="/demopage.png"
+                        alt="Туршилт зураг"
+                        height={0}
+                        width={800}
+                        className="object-cover h-auto"
+                    />
+                </div>
+                <Footer />
             </div>
         </>
     );

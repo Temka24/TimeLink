@@ -64,7 +64,7 @@ export default function Faq() {
                 <Accordion
                     type="single"
                     collapsible
-                    className="w-[800px] shadow rounded-3xl py-[50px] px-[150px]"
+                    className="w-[800px] shadow-md rounded-4xl py-[50px] px-[150px]"
                 >
                     {faqs.map((faq, i: number) => (
                         <AccordionItem key={i} value={faq.question}>

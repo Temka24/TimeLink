@@ -46,13 +46,26 @@ import {
 
 import { useNavbarStore } from '@/store/navbarStore';
 import { motion, AnimatePresence } from 'motion/react';
+import { addMinutes, format } from 'date-fns';
+import { mn } from 'date-fns/locale';
 
-export type Booking = {
+export type BookingPage = {
     name: string;
     duration: number;
     location: string;
     bookingLink: string;
     total: number;
+};
+
+export type Booking = {
+    bookingName: string;
+    isoString: string;
+    inviteeName: string;
+    inviteeEmail: string;
+    location: string;
+    lng: number;
+    lat: number;
+    duration: number;
 };
 
 export default function DashboardPage() {
@@ -79,10 +92,74 @@ export default function DashboardPage() {
         }
     };
 
+    const filterBookingsFunc = () => {
+        let filteredBookings = demoBookings;
+        const now = new Date();
+
+        switch (currentOpenTab) {
+            case 'upcoming':
+                filteredBookings = filteredBookings.filter(
+                    (book) => new Date(book.isoString) > now,
+                );
+                break;
+            case 'pending':
+                filteredBookings = filteredBookings.filter((book) => {
+                    const start = new Date(book.isoString);
+                    const end = addMinutes(start, book.duration);
+                    return start <= now && end > now;
+                });
+                break;
+            case 'past':
+                filteredBookings = filteredBookings.filter(
+                    (book) => new Date(book.isoString) < now,
+                );
+                break;
+        }
+
+        if (!(selectedBooking === 'Бүх')) {
+            filteredBookings = filteredBookings.filter(
+                (book) => book.bookingName === selectedBooking,
+            );
+        }
+
+        if (triggeredSearchText) {
+            filteredBookings = filteredBookings.filter(
+                (book) =>
+                    book.inviteeName
+                        .toLocaleLowerCase()
+                        .includes(triggeredSearchText.toLocaleLowerCase()) ||
+                    book.inviteeEmail
+                        .toLocaleLowerCase()
+                        .includes(triggeredSearchText.toLocaleLowerCase()),
+            );
+        }
+
+        const groupBookingByDate = (bookings: Booking[]) => {
+            return bookings.reduce(
+                (acc, book) => {
+                    if (!book.isoString) return acc;
+
+                    const date = new Date(book.isoString);
+                    const groupKey = format(date, 'EEEE, d MMMM yyyy', { locale: mn });
+
+                    if (!acc[groupKey]) acc[groupKey] = [];
+                    acc[groupKey].push(book);
+
+                    return acc;
+                },
+                {} as Record<string, Booking[]>,
+            );
+        };
+
+        const groupedBookings = groupBookingByDate(filteredBookings);
+
+        return groupedBookings;
+    };
+
     const demoUserName = 'Temka B';
-    const demoBooking: Booking[] = [
+    const demoBookingpages: BookingPage[] = [
         {
-            name: 'Цаг товлолт уулзалт',
+            name: 'Meeting 1',
             duration: 30,
             location: 'Central tower 12 давхар 1201',
             bookingLink:
@@ -90,18 +167,51 @@ export default function DashboardPage() {
             total: 0,
         },
         {
-            name: 'Тэмүүжинтэй уулзалт',
+            name: 'Meeting 2',
             duration: 60,
             location: 'Twin tower 2 давхар 207',
             bookingLink: 'https://timelink/link/bookingid2',
             total: 2,
         },
         {
-            name: 'Цаг товлолт ',
+            name: 'Meeting 3 ',
             duration: 90,
             location: 'Ub Hotel 5 давхар 501',
             bookingLink: 'https://timelink/link/bookingid3',
             total: 5,
+        },
+    ];
+
+    const demoBookings: Booking[] = [
+        {
+            bookingName: 'Meeting 1',
+            isoString: '2025-05-29T09:00:00.000Z',
+            inviteeEmail: 'bymb@example.com',
+            inviteeName: 'Bymb',
+            location: 'Central tower',
+            lat: 0,
+            lng: 0,
+            duration: 30,
+        },
+        {
+            bookingName: 'Meeting 1',
+            isoString: '2025-05-30T10:00:00.000Z',
+            inviteeEmail: 'test@example.com',
+            inviteeName: 'Temka',
+            location: 'Central tower',
+            lat: 0,
+            lng: 0,
+            duration: 30,
+        },
+        {
+            bookingName: 'Meeting 3',
+            isoString: '2025-05-30T16:00:00.000Z',
+            inviteeEmail: 'bymb@example.com',
+            inviteeName: 'Bymb',
+            location: 'Central tower',
+            lat: 0,
+            lng: 0,
+            duration: 90,
         },
     ];
 
@@ -144,7 +254,7 @@ export default function DashboardPage() {
                                     Таны үүсгэсэн цаг захиалах хуудсууд
                                 </div>
                                 <section className="mt-[10px] flex flex-col justify-start items-stretch gap-[20px]">
-                                    {demoBooking.map((booking: Booking, i: number) => (
+                                    {demoBookingpages.map((booking: BookingPage, i: number) => (
                                         <div
                                             key={i}
                                             className="border border-l-4 border-l-demo-left rounded-xl border-hov-color flex items-center justify-start relative px-[24px] py-[16px]"
@@ -278,7 +388,7 @@ export default function DashboardPage() {
                                                 >
                                                     Бүх захиалах хуудсууд
                                                 </SelectItem>
-                                                {demoBooking.map((book, i: number) => (
+                                                {demoBookingpages.map((book, i: number) => (
                                                     <SelectItem
                                                         value={book.name}
                                                         key={i}
@@ -294,7 +404,7 @@ export default function DashboardPage() {
                                         <input
                                             type="text"
                                             value={searchText}
-                                            onChange={(e) => setSearchText(e.target.value)}
+                                            onChange={(e) => setSearchText(e.target.value.trim())}
                                             placeholder="Нэр эсвэл имэйл ээр хайх"
                                             className="px-2.5 py-1.5 text-[14px] focus:outline-none"
                                         />
@@ -349,6 +459,38 @@ export default function DashboardPage() {
                                     </div>
                                 </div>
                                 <div>{selectedBooking}</div>
+                                <div className="flex flex-col items-center justify-start gap-1.5">
+                                    {Object.entries(filterBookingsFunc()).map(
+                                        ([dateStr, bookings]) => (
+                                            <div key={dateStr}>
+                                                <h2 className="text-lg font-bold mb-2">
+                                                    📅 {dateStr}
+                                                </h2>
+
+                                                {bookings.map((b: Booking, i: number) => {
+                                                    const start = format(
+                                                        new Date(b.isoString),
+                                                        'HH:mm',
+                                                    );
+                                                    const end = format(
+                                                        addMinutes(
+                                                            new Date(b.isoString),
+                                                            b.duration,
+                                                        ),
+                                                        'HH:mm',
+                                                    );
+
+                                                    return (
+                                                        <div key={i} className="mb-1 text-sm">
+                                                            ⏰ {start} - {end} • {b.inviteeName} •{' '}
+                                                            {b.inviteeEmail}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ),
+                                    )}
+                                </div>
                             </motion.div>
                         )}
 

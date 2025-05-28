@@ -6,9 +6,9 @@ export default function Footer() {
     const router = useRouter();
     return (
         <>
-            <div className="mt-[100px] flex items-center w-full max-w-[1200px] justify-around text-note text-[14px] font-[500] pb-[10px]">
+            <div className="mt-[100px] flex md:flex-row flex-col-reverse items-center gap-12 sm:gap-8 md:gap-0 w-full max-w-[1200px] justify-around text-note text-[14px] font-[500] pb-[10px]">
                 <div>© 2025 TimeLink</div>
-                <div className="flex items-center justify-center gap-[20px]">
+                <div className="flex items-center justify-center md:gap-[20px] gap-[5px]">
                     <span
                         className="cursor-pointer hover:underline"
                         onClick={() => router.push('/about')}

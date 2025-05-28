@@ -5,7 +5,7 @@ import Link from 'next/link';
 export default function OuterNavbar() {
     return (
         <>
-            <nav className="flex items-center justify-center gap-[60%] w-full">
+            <nav className="flex items-center justify-center md:gap-[60%] gap-[30%] w-full">
                 <Link href="/">
                     <section className="flex items-center justify-center gap-2 cursor-pointer">
                         <Image src="/favicon.png" alt="logo" height={40} width={40} />

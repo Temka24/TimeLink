@@ -59,7 +59,7 @@ export default function Faq() {
                 exit={{ y: -50, opacity: 0 }}
                 transition={{ duration: 0.4 }}
                 key="Faq"
-                className="pt-[50px] min-h-screen overflow-x-hidden w-full flex items-center justify-center"
+                className="pt-[40px] min-h-screen overflow-x-hidden w-full flex items-center justify-center"
             >
                 <Accordion
                     type="single"

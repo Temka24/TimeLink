@@ -51,7 +51,7 @@ export default function Navbar() {
                     <div className="flex items-stretch justify-center gap-5">
                         <div
                             className={clsx(
-                                'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-21px] duration-100 before:w-0 before:h-[2px]',
+                                'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-22px] duration-100 before:w-0 before:h-[2px]',
                                 currentSection === 'Dashboard'
                                     ? 'before:w-full text-black before:bg-main'
                                     : 'text-note before:bg-note',
@@ -65,7 +65,7 @@ export default function Navbar() {
                         </div>
                         <div
                             className={clsx(
-                                'text-[14px] relative cursor-pointer hover:text-black flex items-center text-nowrap justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-21px] duration-100 before:w-0 before:h-[2px]',
+                                'text-[14px] relative cursor-pointer hover:text-black flex items-center text-nowrap justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-22px] duration-100 before:w-0 before:h-[2px]',
                                 currentSection === 'Booking'
                                     ? 'before:w-full text-black before:bg-main'
                                     : 'text-note before:bg-note',
@@ -79,7 +79,7 @@ export default function Navbar() {
                         </div>
                         <div
                             className={clsx(
-                                'text-[14px] relative cursor-pointer hover:text-black flex items-center text-nowrap justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-21px] duration-100 before:w-0 before:h-[2px]',
+                                'text-[14px] relative cursor-pointer hover:text-black flex items-center text-nowrap justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-22px] duration-100 before:w-0 before:h-[2px]',
                                 currentSection === 'FAQ'
                                     ? 'before:w-full text-black before:bg-main'
                                     : 'text-note before:bg-note',

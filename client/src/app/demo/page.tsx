@@ -284,16 +284,15 @@ export default function DemoPage() {
                 </div>
             </div>
             {isOpenSuccess && (
-                <div className="w-[100vw] min-h-screen pt-[60px] overflow-hidden">
+                <div className="w-[100vw] min-h-screen md:pt-[60px] pt-[10px] overflow-hidden">
                     <motion.div
-                        initial={{ y: 50 }}
-                        animate={{ y: 0 }}
+                        initial={{ scale: 0.5 }}
+                        animate={{ scale: 1 }}
                         transition={{ duration: 0.5 }}
                         key="C"
-                        className="h-[600px] mx-auto relative overflow-x-hidden overflow-y-scroll md:max-w-[450px] max-w-[350px] shadow-lg rounded-3xl flex flex-col items-center gap-[10px] justify-center md:py-[50px] pt-[70px] pb-[20px] px-[60px]"
+                        className="md:h-[650px] h-[750px] mx-auto relative overflow-x-hidden overflow-y-scroll md:max-w-[450px] max-w-[350px] shadow-lg rounded-3xl flex flex-col items-center gap-[10px] justify-start md:py-[50px] pt-[70px] pb-[20px] px-[60px] overflow-hidden scale-90 md:scale-100"
                     >
                         <div className="text-green-700">
-                            {' '}
                             <CircleCheck size={70} strokeWidth={1} />
                         </div>
                         <h1 className="font-semibold text-[20px]">Амжилттай</h1>

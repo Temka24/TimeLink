@@ -110,9 +110,10 @@ export default function DashboardPage() {
                 });
                 break;
             case 'past':
-                filteredBookings = filteredBookings.filter(
-                    (book) => new Date(book.isoString) < now,
-                );
+                filteredBookings = filteredBookings.filter((book) => {
+                    const end = addMinutes(new Date(book.isoString), book.duration);
+                    return end < now;
+                });
                 break;
         }
 
@@ -167,14 +168,14 @@ export default function DashboardPage() {
             total: 0,
         },
         {
-            name: 'Meeting 2',
+            name: 'Meeting 2 with Temka in barber booking okey broa homei a',
             duration: 60,
             location: 'Twin tower 2 давхар 207',
             bookingLink: 'https://timelink/link/bookingid2',
             total: 2,
         },
         {
-            name: 'Meeting 3 ',
+            name: 'Meeting 3',
             duration: 90,
             location: 'Ub Hotel 5 давхар 501',
             bookingLink: 'https://timelink/link/bookingid3',
@@ -212,6 +213,36 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 90,
+        },
+        {
+            bookingName: 'Meeting 3',
+            isoString: '2025-05-29T10:00:00.000Z',
+            inviteeEmail: 'bymb@example.com',
+            inviteeName: 'Bymb',
+            location: 'Central tower',
+            lat: 0,
+            lng: 0,
+            duration: 30,
+        },
+        {
+            bookingName: 'Meeting 2 with Temka in barber booking okey broa homei a',
+            isoString: '2025-05-28T10:00:00.000Z',
+            inviteeEmail: 'bymb@example.com',
+            inviteeName: 'Bymb',
+            location: 'Central tower',
+            lat: 0,
+            lng: 0,
+            duration: 30,
+        },
+        {
+            bookingName: 'Meeting 2 with Temka in barber booking okey broa homei a',
+            isoString: '2025-05-26T10:00:00.000Z',
+            inviteeEmail: 'bymb@example.com',
+            inviteeName: 'Bymb',
+            location: 'Central tower',
+            lat: 0,
+            lng: 0,
+            duration: 30,
         },
     ];
 
@@ -371,35 +402,41 @@ export default function DashboardPage() {
                                 transition={{ duration: 0.4 }}
                                 key="Booking"
                             >
-                                <div className="flex items-center justify-start gap-[50px]">
-                                    <Select
-                                        value={selectedBooking}
-                                        onValueChange={setSelectedBooking}
-                                        defaultValue={selectedBooking}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Бүх захиалах хуудсууд" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectItem
-                                                    value="Бүх"
-                                                    className="cursor-pointer font-extrabold"
-                                                >
-                                                    Бүх захиалах хуудсууд
-                                                </SelectItem>
-                                                {demoBookingpages.map((book, i: number) => (
+                                <div className="flex items-center justify-start gap-[100px]">
+                                    <div className="w-[300px] overflow-x-scroll custom-scroll">
+                                        <Select
+                                            value={selectedBooking}
+                                            onValueChange={setSelectedBooking}
+                                            defaultValue={selectedBooking}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue
+                                                    className="overflow-x-scroll overflow-y-hidden"
+                                                    placeholder="Бүх захиалах хуудсууд"
+                                                />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
                                                     <SelectItem
-                                                        value={book.name}
-                                                        key={i}
-                                                        className="cursor-pointer"
+                                                        value="Бүх"
+                                                        className="cursor-pointer font-extrabold"
                                                     >
-                                                        {book.name}
+                                                        Бүх захиалах хуудсууд
                                                     </SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                                                    {demoBookingpages.map((book, i: number) => (
+                                                        <SelectItem
+                                                            value={book.name}
+                                                            key={i}
+                                                            className="cursor-pointer"
+                                                        >
+                                                            {book.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
                                     <div className="flex items-center justify-center rounded-sm border overflow-hidden">
                                         <input
                                             type="text"
@@ -415,14 +452,13 @@ export default function DashboardPage() {
                                             Хайх
                                         </Button>
                                     </div>
-                                    <div>{triggeredSearchText}</div>
                                 </div>
-                                <div className="border-b border-hov-color flex items-center justify-start gap-[40px] mt-[30px] p-[10px]">
+                                <div className="border-b border-hov-color flex items-center justify-start gap-[60px] mt-[20px] p-[10px] ml-4 font-[600]">
                                     <div
                                         className={clsx(
                                             'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-11px] duration-100 before:w-0 before:h-[1px]',
                                             currentOpenTab === 'upcoming'
-                                                ? 'before:w-full text-black before:bg-main'
+                                                ? 'before:w-full text-main before:bg-main '
                                                 : 'text-note before:bg-note',
                                         )}
                                         onClick={() => {
@@ -435,7 +471,7 @@ export default function DashboardPage() {
                                         className={clsx(
                                             'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-11px] duration-100 before:w-0 before:h-[1px]',
                                             currentOpenTab === 'pending'
-                                                ? 'before:w-full text-black before:bg-main'
+                                                ? 'before:w-full text-main before:bg-main'
                                                 : 'text-note before:bg-note',
                                         )}
                                         onClick={() => {
@@ -448,7 +484,7 @@ export default function DashboardPage() {
                                         className={clsx(
                                             'text-[14px] relative cursor-pointer hover:text-black flex items-center justify-center before:content-[""] hover:before:w-full before:absolute  before:bottom-[-11px] duration-100 before:w-0 before:h-[1px]',
                                             currentOpenTab === 'past'
-                                                ? 'before:w-full text-black before:bg-main'
+                                                ? 'before:w-full text-main before:bg-main'
                                                 : 'text-note before:bg-note',
                                         )}
                                         onClick={() => {
@@ -458,37 +494,57 @@ export default function DashboardPage() {
                                         Өнгөрсөн
                                     </div>
                                 </div>
-                                <div>{selectedBooking}</div>
-                                <div className="flex flex-col items-center justify-start gap-1.5">
-                                    {Object.entries(filterBookingsFunc()).map(
-                                        ([dateStr, bookings]) => (
-                                            <div key={dateStr}>
-                                                <h2 className="text-lg font-bold mb-2">
-                                                    📅 {dateStr}
-                                                </h2>
+                                <div className="flex flex-col items-stretch justify-start gap-7 mt-[20px]">
+                                    {Object.values(filterBookingsFunc()).flat().length === 0 ? (
+                                        <div className="ml-2.5">Захиалга байхгүй байна</div>
+                                    ) : (
+                                        Object.entries(filterBookingsFunc()).map(
+                                            ([dateStr, bookings]) => (
+                                                <div
+                                                    key={dateStr}
+                                                    className="flex flex-col items-center justify-center gap-0 relative"
+                                                >
+                                                    <p className="text-[16px] font-[600] mb-2 self-start">
+                                                        {dateStr}
+                                                    </p>
 
-                                                {bookings.map((b: Booking, i: number) => {
-                                                    const start = format(
-                                                        new Date(b.isoString),
-                                                        'HH:mm',
-                                                    );
-                                                    const end = format(
-                                                        addMinutes(
+                                                    {bookings.map((b: Booking, i: number) => {
+                                                        const start = format(
                                                             new Date(b.isoString),
-                                                            b.duration,
-                                                        ),
-                                                        'HH:mm',
-                                                    );
+                                                            'HH:mm',
+                                                        );
+                                                        const end = format(
+                                                            addMinutes(
+                                                                new Date(b.isoString),
+                                                                b.duration,
+                                                            ),
+                                                            'HH:mm',
+                                                        );
 
-                                                    return (
-                                                        <div key={i} className="mb-1 text-sm">
-                                                            ⏰ {start} - {end} • {b.inviteeName} •{' '}
-                                                            {b.inviteeEmail}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        ),
+                                                        return (
+                                                            <div
+                                                                key={i}
+                                                                className="mb-1 text-sm w-full border-l-[5px] shadow rounded-md border-demo-left px-2.5 py-3.5 flex items-start justify-star pl-5 gap-[20%] relative"
+                                                            >
+                                                                <div>
+                                                                    {start} - {end}
+                                                                </div>
+                                                                <div className="flex flex-col items-start justify-center gap-1">
+                                                                    <div className="flex items-center justify-center gap-0.5">
+                                                                        <p>{b.inviteeName}</p>
+                                                                        <p>{b.inviteeEmail}</p>
+                                                                    </div>
+                                                                    <div>{b.bookingName}</div>
+                                                                </div>
+                                                                <Button className="absolute right-[10%] top-3.5">
+                                                                    Дэлгэрэнгүй
+                                                                </Button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            ),
+                                        )
                                     )}
                                 </div>
                             </motion.div>

@@ -93,7 +93,10 @@ export default function DashboardPage() {
     };
 
     const filterBookingsFunc = () => {
-        let filteredBookings = demoBookings;
+        let filteredBookings = demoBookings.sort(
+            (a: Booking, b: Booking) =>
+                new Date(a.isoString).getTime() - new Date(b.isoString).getTime(),
+        );
         const now = new Date();
 
         switch (currentOpenTab) {

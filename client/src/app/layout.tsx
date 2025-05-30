@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { outfit } from './font';
+import { inter } from './font';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={outfit.className}>{children}</body>
+            <body className={inter.className}>{children}</body>
         </html>
     );
 }

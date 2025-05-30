@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import Navbar from '@/components/sections/Navbar';
 import Footer from '@/components/sections/Footer';
+import { SquarePen } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -17,6 +19,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+    DialogClose,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 const EventSchema = z
     .object({
@@ -33,6 +45,7 @@ const EventSchema = z
         startBreakMinute: z.number(),
         endBreakHour: z.number(),
         endBreakMinute: z.number(),
+        durations: z.array(z.number()).min(1, 'Үргэлжлэх хугацаа сонгоно уу'),
     })
     .refine(
         (data) => {
@@ -113,6 +126,7 @@ export default function NewPage() {
             startBreakMinute: 0,
             endBreakHour: 13,
             endBreakMinute: 0,
+            durations: [30],
         },
     });
 
@@ -127,6 +141,35 @@ export default function NewPage() {
         const m = i % 2 === 0 ? '00' : '30';
         return `${h}:${m}`;
     });
+
+    const [customDuration, setCustomDuration] = useState<number | undefined>(undefined);
+    const durations = watch('durations');
+    const builtIn = [30, 60, 90, 120];
+    const customs = durations.filter((min) => !builtIn.includes(min));
+    const displayDurations = [...builtIn, ...customs];
+
+    const addCustomDuration = () => {
+        if (!customDuration) {
+            alert('Минутаа оруулна уу');
+            return;
+        }
+        if (customDuration >= 480) {
+            alert('Уучлаарай минут хэтэрсэн байна');
+            return;
+        }
+
+        if (
+            !Number.isNaN(customDuration) &&
+            !durations.includes(customDuration) &&
+            customDuration !== 0
+        ) {
+            setValue('durations', [...durations, customDuration]);
+            setCustomDuration(undefined);
+            return;
+        }
+
+        alert('Минут алдаатай эсвэл давхцаж байна байна');
+    };
 
     const startTime = `${watch('startHour').toString().padStart(2, '0')}:${watch('startMinute').toString().padStart(2, '0')}`;
     const endTime = `${watch('endHour').toString().padStart(2, '0')}:${watch('endMinute').toString().padStart(2, '0')}`;
@@ -333,6 +376,63 @@ export default function NewPage() {
                                         </p>
                                     )}
                                 </div>
+                            </div>
+
+                            <hr className="my-[20px]" />
+
+                            <div className="pl-5 mt-6">
+                                <Label>Үргэлжлэх хугацаа</Label>
+                                <ToggleGroup
+                                    type="multiple"
+                                    value={durations.map(String)}
+                                    onValueChange={(val) => {
+                                        setValue('durations', val.map(Number));
+                                    }}
+                                >
+                                    {displayDurations.map((min) => (
+                                        <ToggleGroupItem key={min} value={String(min)}>
+                                            {min} мин
+                                        </ToggleGroupItem>
+                                    ))}
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <Button> - </Button>
+                                        </DialogTrigger>
+                                        <DialogContent>
+                                            <DialogHeader>
+                                                <DialogTitle>Таны захиалгын линк</DialogTitle>
+                                            </DialogHeader>
+                                            <div className="flex items-center justify-start gap-2.5">
+                                                <SquarePen />
+                                                <Input
+                                                    type="number"
+                                                    value={customDuration ?? ''}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value;
+                                                        setCustomDuration(
+                                                            val === '' ? undefined : Number(val),
+                                                        );
+                                                    }}
+                                                />
+                                            </div>
+                                            <DialogFooter className="flex items-center justify-end gap-3.5">
+                                                <DialogClose asChild>
+                                                    <Button>Хаах</Button>
+                                                </DialogClose>
+                                                <DialogClose asChild>
+                                                    <Button onClick={addCustomDuration}>
+                                                        Хадгалах
+                                                    </Button>
+                                                </DialogClose>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                </ToggleGroup>
+                                {errors.durations && (
+                                    <p className="text-red-500 text-sm">
+                                        {errors.durations.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <Button type="submit">Хадгалах</Button>

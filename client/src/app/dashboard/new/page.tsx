@@ -3,7 +3,14 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import dynamic from 'next/dynamic';
 
+const LocationPicker = dynamic(() => import('@/components/features/LocationPicker'), {
+    ssr: false,
+});
+const LocationMap = dynamic(() => import('@/components/features/LocationMap'), {
+    ssr: false,
+});
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -46,6 +53,12 @@ const EventSchema = z
         endBreakHour: z.number(),
         endBreakMinute: z.number(),
         durations: z.array(z.number()).min(1, 'Үргэлжлэх хугацаа сонгоно уу'),
+        increment: z.number(),
+        buffer: z.number(),
+        location: z.object({
+            lng: z.number(),
+            lat: z.number(),
+        }),
     })
     .refine(
         (data) => {
@@ -127,6 +140,9 @@ export default function NewPage() {
             endBreakHour: 13,
             endBreakMinute: 0,
             durations: [30],
+            increment: 30,
+            buffer: 0,
+            location: { lat: 47.9185, lng: 106.917 },
         },
     });
 
@@ -182,7 +198,7 @@ export default function NewPage() {
 
             <div className="max-w-[1200px] w-screen mx-auto relative px-[40px] pb-[40px] min-h-screen overflow-x-hidden border">
                 <Navbar />
-                <div className="flex items-center justify-center w-full h-full mt-[40px] gap-[40px]">
+                <div className="flex items-center justify-center w-full mt-[40px] gap-[40px]">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="w-1/2 relative flex flex-col items-stretch justify-start gap-[50px]"
@@ -223,7 +239,7 @@ export default function NewPage() {
                             </div>
                             <div>
                                 <Label>
-                                    Уулзалтын талаарх мэдээлэл -{' '}
+                                    Цаг захиалгын талаарх мэдээлэл -{' '}
                                     <p className="text-note italic text-sm">
                                         Энэ хэсгийг орхиж болно
                                     </p>
@@ -234,154 +250,164 @@ export default function NewPage() {
 
                         <div className="shadow-md relative p-7">
                             <div className="absolute top-0 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-purple-400 to-pink-400"></div>
-                            <div className="flex items-center justify-center gap-[20%] ">
-                                <div className="flex flex-col items-start justify-start gap-5 shadow-md rounded-md relative w-[150px] p-7">
+                            <div className="flex items-center justify-center gap-[7%]">
+                                <div className="flex flex-col items-start justify-start gap-5 shadow-md rounded-md relative w-[170px] p-7">
                                     {Object.entries(dayNames).map(([key, label]) => (
-                                        <div key={key} className="flex items-start space-x-2">
-                                            <Label>{label}</Label>
+                                        <div key={key} className="flex items-center space-x-2">
+                                            <Label className="text-[16px]">{label}</Label>
                                             <Switch
                                                 checked={watch('activeDays')[key]}
                                                 onCheckedChange={(val) =>
                                                     setValue(`activeDays.${key}`, val)
                                                 }
-                                                className="cursor-pointer absolute right-[10px]"
+                                                className="cursor-pointer absolute right-[10px] scale-110"
                                             />
                                         </div>
                                     ))}
                                 </div>
-                                <div className="flex flex-col items-stretch justify-center gap-5">
-                                    <div>
-                                        <Label>Эхлэх цаг</Label>
-                                        <Select
-                                            value={startTime}
-                                            onValueChange={(val) => {
-                                                const [h, m] = val.split(':');
-                                                setValue('startHour', parseInt(h));
-                                                setValue('startMinute', parseInt(m));
-                                            }}
-                                        >
-                                            <SelectTrigger className="w-[150px]">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent className="max-h-[400px] w-[150px]">
-                                                {timeOptions.map((t) => (
-                                                    <SelectItem
-                                                        key={t}
-                                                        value={t}
-                                                        className="pl-5 cursor-pointer"
-                                                    >
-                                                        {t}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                <div className="flex flex-col items-start justify-center w-1/2 pr-15 pl-5">
+                                    <div className="flex flex-col items-stretch justify-center gap-2 shadow-md rounded-xl p-5">
+                                        <Label className="self-start mb-1.5 font-bold text-[16px]">
+                                            Боломжит цаг
+                                        </Label>
+                                        <div className="ml-4">
+                                            <Label>Эхлэх</Label>
+                                            <Select
+                                                value={startTime}
+                                                onValueChange={(val) => {
+                                                    const [h, m] = val.split(':');
+                                                    setValue('startHour', parseInt(h));
+                                                    setValue('startMinute', parseInt(m));
+                                                }}
+                                            >
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-[400px] w-[150px]">
+                                                    {timeOptions.map((t) => (
+                                                        <SelectItem
+                                                            key={t}
+                                                            value={t}
+                                                            className="pl-5 cursor-pointer"
+                                                        >
+                                                            {t}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="ml-4">
+                                            <Label>Дуусах</Label>
+                                            <Select
+                                                value={endTime}
+                                                onValueChange={(val) => {
+                                                    const [h, m] = val.split(':');
+                                                    setValue('endHour', parseInt(h));
+                                                    setValue('endMinute', parseInt(m));
+                                                }}
+                                            >
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-[400px] w-[150px]">
+                                                    {timeOptions.map((t) => (
+                                                        <SelectItem
+                                                            key={t}
+                                                            value={t}
+                                                            className="pl-5 cursor-pointer"
+                                                        >
+                                                            {t}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.endHour && (
+                                                <p className="text-red-500 text-sm w-[150px] text-wrap ">
+                                                    {errors.endHour.message}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <Label>Дуусах цаг</Label>
-                                        <Select
-                                            value={endTime}
-                                            onValueChange={(val) => {
-                                                const [h, m] = val.split(':');
-                                                setValue('endHour', parseInt(h));
-                                                setValue('endMinute', parseInt(m));
-                                            }}
-                                        >
-                                            <SelectTrigger className="w-[150px]">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent className="max-h-[400px] w-[150px]">
-                                                {timeOptions.map((t) => (
-                                                    <SelectItem
-                                                        key={t}
-                                                        value={t}
-                                                        className="pl-5 cursor-pointer"
-                                                    >
-                                                        {t}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        {errors.endHour && (
-                                            <p className="text-red-500 text-sm w-[150px] text-wrap ">
-                                                {errors.endHour.message}
-                                            </p>
-                                        )}
+
+                                    <div className="flex flex-col items-center justify-start gap-2 mt-5 shadow-md rounded-xl p-5">
+                                        <Label className="self-start mb-1.5 font-bold text-[16px]">
+                                            Цайны цаг
+                                        </Label>
+                                        <div className="ml-4">
+                                            <Label>Эхлэх</Label>
+                                            <Select
+                                                value={startBreakTime}
+                                                onValueChange={(val) => {
+                                                    const [h, m] = val.split(':');
+                                                    setValue('startBreakHour', parseInt(h));
+                                                    setValue('startBreakMinute', parseInt(m));
+                                                }}
+                                            >
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-[400px] w-[150px]">
+                                                    {timeOptions.map((t) => (
+                                                        <SelectItem
+                                                            key={t}
+                                                            value={t}
+                                                            className="pl-5 cursor-pointer"
+                                                        >
+                                                            {t}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.startBreakHour && (
+                                                <p className="text-red-500 text-sm w-[150px] text-wrap ">
+                                                    {errors.startBreakHour.message}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="ml-4">
+                                            <Label>Дуусах</Label>
+                                            <Select
+                                                value={endBreakTime}
+                                                onValueChange={(val) => {
+                                                    const [h, m] = val.split(':');
+                                                    setValue('endBreakHour', parseInt(h));
+                                                    setValue('endBreakMinute', parseInt(m));
+                                                }}
+                                            >
+                                                <SelectTrigger className="w-[150px]">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent className="max-h-[400px] w-[150px]">
+                                                    {timeOptions.map((t) => (
+                                                        <SelectItem
+                                                            key={t}
+                                                            value={t}
+                                                            className="pl-5 cursor-pointer"
+                                                        >
+                                                            {t}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.endBreakHour && (
+                                                <p className="text-red-500 text-sm w-[150px] text-wrap ">
+                                                    {errors.endBreakHour.message}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <hr className="mt-[20px]" />
-
-                            <div className="flex items-center justify-start pl-5 gap-5 mt-6">
-                                <Label>Цайны цаг</Label>
-                                <div>
-                                    <Label>Эхлэх</Label>
-                                    <Select
-                                        value={startBreakTime}
-                                        onValueChange={(val) => {
-                                            const [h, m] = val.split(':');
-                                            setValue('startBreakHour', parseInt(h));
-                                            setValue('startBreakMinute', parseInt(m));
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-[150px]">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="max-h-[400px] w-[150px]">
-                                            {timeOptions.map((t) => (
-                                                <SelectItem
-                                                    key={t}
-                                                    value={t}
-                                                    className="pl-5 cursor-pointer"
-                                                >
-                                                    {t}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.startBreakHour && (
-                                        <p className="text-red-500 text-sm w-[150px] text-wrap ">
-                                            {errors.startBreakHour.message}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <Label>Дуусах</Label>
-                                    <Select
-                                        value={endBreakTime}
-                                        onValueChange={(val) => {
-                                            const [h, m] = val.split(':');
-                                            setValue('endBreakHour', parseInt(h));
-                                            setValue('endBreakMinute', parseInt(m));
-                                        }}
-                                    >
-                                        <SelectTrigger className="w-[150px]">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="max-h-[400px] w-[150px]">
-                                            {timeOptions.map((t) => (
-                                                <SelectItem
-                                                    key={t}
-                                                    value={t}
-                                                    className="pl-5 cursor-pointer"
-                                                >
-                                                    {t}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                    {errors.endBreakHour && (
-                                        <p className="text-red-500 text-sm w-[150px] text-wrap ">
-                                            {errors.endBreakHour.message}
-                                        </p>
-                                    )}
                                 </div>
                             </div>
 
                             <hr className="my-[20px]" />
 
                             <div className="pl-5 mt-6">
-                                <Label>Үргэлжлэх хугацаа</Label>
+                                <Label>
+                                    Үргэлжлэх хугацаа -{' '}
+                                    <p className="text-note text-[13px] italic">
+                                        Нэг ба түүнээс олон байж болно
+                                    </p>
+                                </Label>
                                 <ToggleGroup
                                     type="multiple"
                                     value={durations.map(String)}
@@ -390,13 +416,17 @@ export default function NewPage() {
                                     }}
                                 >
                                     {displayDurations.map((min) => (
-                                        <ToggleGroupItem key={min} value={String(min)}>
+                                        <ToggleGroupItem
+                                            key={min}
+                                            value={String(min)}
+                                            className="cursor-pointer"
+                                        >
                                             {min} мин
                                         </ToggleGroupItem>
                                     ))}
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <Button> - </Button>
+                                            <Button className="cursor-pointer"> - </Button>
                                         </DialogTrigger>
                                         <DialogContent>
                                             <DialogHeader>
@@ -417,10 +447,13 @@ export default function NewPage() {
                                             </div>
                                             <DialogFooter className="flex items-center justify-end gap-3.5">
                                                 <DialogClose asChild>
-                                                    <Button>Хаах</Button>
+                                                    <Button className="cursor-pointer">Хаах</Button>
                                                 </DialogClose>
                                                 <DialogClose asChild>
-                                                    <Button onClick={addCustomDuration}>
+                                                    <Button
+                                                        className="cursor-pointer"
+                                                        onClick={addCustomDuration}
+                                                    >
                                                         Хадгалах
                                                     </Button>
                                                 </DialogClose>
@@ -434,11 +467,77 @@ export default function NewPage() {
                                     </p>
                                 )}
                             </div>
+
+                            <div className="flex items-center justify-center gap-4 mt-7">
+                                <div>
+                                    <Label>Цагууд хоорондын зай</Label>
+                                    <Select
+                                        value={String(watch('increment'))}
+                                        onValueChange={(val) => {
+                                            setValue('increment', Number(val));
+                                        }}
+                                    >
+                                        <SelectTrigger className="w-[150px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="max-h-[400px] w-[150px]">
+                                            {[10, 20, 30, 40, 50, 60].map((t) => (
+                                                <SelectItem
+                                                    key={t}
+                                                    value={String(t)}
+                                                    className="pl-5 cursor-pointer"
+                                                >
+                                                    {t} минут
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label>Уулзалтын дараах амралт</Label>
+                                    <Select
+                                        value={String(watch('buffer'))}
+                                        onValueChange={(val) => {
+                                            setValue('buffer', Number(val));
+                                        }}
+                                    >
+                                        <SelectTrigger className="w-[150px]">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="max-h-[400px] w-[150px]">
+                                            {[0, 10, 20, 30].map((t) => (
+                                                <SelectItem
+                                                    key={t}
+                                                    value={String(t)}
+                                                    className="pl-5 cursor-pointer"
+                                                >
+                                                    {t} минут
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="shadow-md p-7 relative">
+                            <div className="absolute top-0 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-purple-400 to-indigo-400"></div>
+                            <LocationPicker
+                                value={watch('location')}
+                                onChange={(coords) =>
+                                    setValue('location', coords as { lng: number; lat: number }, {
+                                        shouldValidate: true,
+                                    })
+                                }
+                            />
                         </div>
                         <Button type="submit">Хадгалах</Button>
                     </form>
 
-                    <section className="w-1/2 border-red-500 border relative h-full">de</section>
+                    <section className="w-1/2 border-red-500 border relative h-full">
+                        <h1>de</h1>
+                        <LocationMap lat={watch('location').lat} lng={watch('location').lng} />
+                    </section>
                 </div>
                 <Footer />
             </div>

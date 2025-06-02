@@ -198,7 +198,7 @@ export default function NewPage() {
         <>
             <div className="-z-10 absolute h-[64px] w-full shadow-md"></div>
 
-            <div className="max-w-[1200px] w-screen mx-auto relative px-[40px] pb-[40px] min-h-screen border">
+            <div className="max-w-[1200px] w-screen mx-auto relative px-[40px] pb-[40px] min-h-screen">
                 <Navbar />
                 <div className="flex items-stretch justify-center w-full mt-[40px] gap-[40px]">
                     <form
@@ -588,11 +588,11 @@ export default function NewPage() {
                             type="submit"
                             className="py-[24px] w-[80%] mx-auto text-[16px] rounded-3xl cursor-pointer sticky bottom-[20px] z-10 bg-main hover:opacity-80"
                         >
-                            Хадгалах
+                            Үүсгэх
                         </Button>
                     </form>
 
-                    <section className="w-1/2 border border-blue-500">
+                    <section className="w-1/2">
                         <div className="sticky top-[40px]">
                             <NewPagePreview control={control} previewImage={previewImage} />
                         </div>

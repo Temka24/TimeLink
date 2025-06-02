@@ -8,9 +8,7 @@ import dynamic from 'next/dynamic';
 const LocationPicker = dynamic(() => import('@/components/features/LocationPicker'), {
     ssr: false,
 });
-const LocationMap = dynamic(() => import('@/components/features/LocationMap'), {
-    ssr: false,
-});
+import NewPagePreview from '@/components/sections/NewpagePreview';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -18,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import Navbar from '@/components/sections/Navbar';
 import Footer from '@/components/sections/Footer';
-import { SquarePen } from 'lucide-react';
+import { SquarePen, X } from 'lucide-react';
 import {
     Select,
     SelectContent,
@@ -36,11 +34,12 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const EventSchema = z
     .object({
         title: z.string().min(1, 'Гарчиг оруулна уу !'),
-        image: z.any().optional(),
+        image: z.instanceof(File).optional(),
         locationDescription: z.string().min(1, 'Байршлийн дэлгэрэнгүй мэдээллээ оруулна уу'),
         eventDescription: z.string().optional(),
         activeDays: z.record(z.string(), z.boolean()),
@@ -94,7 +93,7 @@ const EventSchema = z
         },
     );
 
-type EventFormType = z.infer<typeof EventSchema>;
+export type EventFormType = z.infer<typeof EventSchema>;
 
 export default function NewPage() {
     const demoUserName = 'Temka B';
@@ -111,6 +110,7 @@ export default function NewPage() {
 
     const {
         register,
+        control,
         handleSubmit,
         setValue,
         watch,
@@ -164,6 +164,8 @@ export default function NewPage() {
     const customs = durations.filter((min) => !builtIn.includes(min));
     const displayDurations = [...builtIn, ...customs];
 
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+
     const addCustomDuration = () => {
         if (!customDuration) {
             alert('Минутаа оруулна уу');
@@ -196,60 +198,94 @@ export default function NewPage() {
         <>
             <div className="-z-10 absolute h-[64px] w-full shadow-md"></div>
 
-            <div className="max-w-[1200px] w-screen mx-auto relative px-[40px] pb-[40px] min-h-screen overflow-x-hidden border">
+            <div className="max-w-[1200px] w-screen mx-auto relative px-[40px] pb-[40px] min-h-screen border">
                 <Navbar />
-                <div className="flex items-center justify-center w-full mt-[40px] gap-[40px]">
+                <div className="flex items-stretch justify-center w-full mt-[40px] gap-[40px]">
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="w-1/2 relative flex flex-col items-stretch justify-start gap-[50px]"
                     >
-                        <div className="shadow-md flex flex-col items-stretch justify-start gap-2.5 relative p-5">
-                            <div className="absolute top-0 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-blue-400 to-indigo-400"></div>
-                            <h1 className="font-medium">Цаг захиалах хуудас</h1>
-                            <div className="flex items-center justify-start gap-2">
+                        <div className="shadow-md flex flex-col items-stretch justify-start gap-2.5 relative p-5 rounded-md overflow-hidden">
+                            <div className="absolute top-1 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-blue-400 to-indigo-400"></div>
+                            <h1 className="font-medium text-[18px]">Цаг захиалах хуудас</h1>
+                            <div className="flex items-center justify-start gap-2 mt-1.5">
                                 <div>
                                     <Label>Гарчиг</Label>
-                                    <Input {...register('title')} />
+                                    <Input {...register('title')} className="mt-1" />
                                     {errors.title && (
                                         <p className="text-red-500 text-sm">
                                             {errors.title.message}
                                         </p>
                                     )}
                                 </div>
-                                <div>
-                                    <Label>Зураг</Label>
+                                <div className="ml-8">
+                                    <Label className="ml-3">
+                                        Зураг -{' '}
+                                        <p className="text-[12px] text-note italic">орхиж болно</p>
+                                    </Label>
                                     <Input
                                         type="file"
-                                        {...register('image')}
-                                        className="file:mr-4 file:rounded-full file:border-0 cursor-pointer file:bg-violet-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-violet-700 hover:file:bg-violet-100 dark:file:bg-violet-600 dark:file:text-violet-100 dark:hover:file:bg-violet-500"
+                                        id="imageInput"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                setValue('image', file, { shouldValidate: true });
+                                                setPreviewImage(URL.createObjectURL(file));
+                                                e.target.value = '';
+                                            }
+                                        }}
                                     />
+                                    <div className="flex items-end justify-center gap-2">
+                                        <Label>
+                                            <Button
+                                                variant="outline"
+                                                type="button"
+                                                onClick={() =>
+                                                    document.getElementById('imageInput')?.click()
+                                                }
+                                                className="cursor-pointer mt-1"
+                                                disabled={!!watch('image')}
+                                            >
+                                                Өөрчлөх
+                                            </Button>
+                                        </Label>
+                                        {watch('image') && (
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            setValue('image', undefined, {
+                                                                shouldValidate: true,
+                                                            });
+                                                            setPreviewImage(null);
+                                                        }}
+                                                        className="cursor-pointer"
+                                                    >
+                                                        <X />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Устгах</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-                            <div>
-                                <Label>Байршлийн дэлгэрэнгүй мэдээлэл</Label>
-                                <Input
-                                    {...register('locationDescription')}
-                                    placeholder="Мэдээллээ оруулна уу !"
-                                />
-                                {errors.locationDescription && (
-                                    <p className="text-red-500 text-sm">
-                                        {errors.locationDescription.message}
-                                    </p>
-                                )}
-                            </div>
-                            <div>
+                            <div className="mt-2">
                                 <Label>
                                     Цаг захиалгын талаарх мэдээлэл -{' '}
-                                    <p className="text-note italic text-sm">
-                                        Энэ хэсгийг орхиж болно
-                                    </p>
+                                    <p className="text-note italic text-[12px]">орхиж болно</p>
                                 </Label>
-                                <Textarea {...register('eventDescription')} />
+                                <Textarea className="mt-1" {...register('eventDescription')} />
                             </div>
                         </div>
 
-                        <div className="shadow-md relative p-7">
-                            <div className="absolute top-0 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-purple-400 to-pink-400"></div>
+                        <div className="shadow-md relative p-7 rounded-md overflow-hidden">
+                            <div className="absolute top-1 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-purple-400 to-pink-400"></div>
                             <div className="flex items-center justify-center gap-[7%]">
                                 <div className="flex flex-col items-start justify-start gap-5 shadow-md rounded-md relative w-[170px] p-7">
                                     {Object.entries(dayNames).map(([key, label]) => (
@@ -260,7 +296,7 @@ export default function NewPage() {
                                                 onCheckedChange={(val) =>
                                                     setValue(`activeDays.${key}`, val)
                                                 }
-                                                className="cursor-pointer absolute right-[10px] scale-110"
+                                                className="cursor-pointer absolute right-[10px] scale-110 data-[state=checked]:bg-main transition-colors"
                                             />
                                         </div>
                                     ))}
@@ -414,23 +450,27 @@ export default function NewPage() {
                                     onValueChange={(val) => {
                                         setValue('durations', val.map(Number));
                                     }}
+                                    className="flex items-center justify-center gap-2 mt-2.5"
                                 >
                                     {displayDurations.map((min) => (
                                         <ToggleGroupItem
                                             key={min}
                                             value={String(min)}
-                                            className="cursor-pointer"
+                                            className=" text-wrap cursor-pointer data-[state=on]:bg-main/70 rounded-md data-[state=on]:border-violet-900 border transition-all duration-200"
                                         >
-                                            {min} мин
+                                            <p>{min} мин</p>
                                         </ToggleGroupItem>
                                     ))}
                                     <Dialog>
                                         <DialogTrigger asChild>
-                                            <Button className="cursor-pointer"> - </Button>
+                                            <Button className="cursor-pointer" variant="outline">
+                                                {' '}
+                                                -{' '}
+                                            </Button>
                                         </DialogTrigger>
                                         <DialogContent>
                                             <DialogHeader>
-                                                <DialogTitle>Таны захиалгын линк</DialogTitle>
+                                                <DialogTitle>Үргэлжлэх хугацаа</DialogTitle>
                                             </DialogHeader>
                                             <div className="flex items-center justify-start gap-2.5">
                                                 <SquarePen />
@@ -468,9 +508,9 @@ export default function NewPage() {
                                 )}
                             </div>
 
-                            <div className="flex items-center justify-center gap-4 mt-7">
+                            <div className="flex items-center justify-start gap-5 ml-7 mt-7">
                                 <div>
-                                    <Label>Цагууд хоорондын зай</Label>
+                                    <Label className="mb-1">Цагууд хоорондын зай</Label>
                                     <Select
                                         value={String(watch('increment'))}
                                         onValueChange={(val) => {
@@ -494,7 +534,7 @@ export default function NewPage() {
                                     </Select>
                                 </div>
                                 <div>
-                                    <Label>Уулзалтын дараах амралт</Label>
+                                    <Label className="mb-1">Уулзалтын дараах амралт</Label>
                                     <Select
                                         value={String(watch('buffer'))}
                                         onValueChange={(val) => {
@@ -520,8 +560,8 @@ export default function NewPage() {
                             </div>
                         </div>
 
-                        <div className="shadow-md p-7 relative">
-                            <div className="absolute top-0 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-purple-400 to-indigo-400"></div>
+                        <div className="shadow-md p-7 relative rounded-md overflow-hidden">
+                            <div className="absolute top-1 right-0 w-full h-1 sm:rounded-t-lg bg-gradient-to-r from-purple-400 to-indigo-400"></div>
                             <LocationPicker
                                 value={watch('location')}
                                 onChange={(coords) =>
@@ -530,13 +570,32 @@ export default function NewPage() {
                                     })
                                 }
                             />
+                            <div className="mt-5">
+                                <Label>Байршлийн дэлгэрэнгүй мэдээлэл</Label>
+                                <Input
+                                    {...register('locationDescription')}
+                                    placeholder="Мэдээллээ оруулна уу !"
+                                    className="mt-1"
+                                />
+                                {errors.locationDescription && (
+                                    <p className="text-red-500 text-sm">
+                                        {errors.locationDescription.message}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                        <Button type="submit">Хадгалах</Button>
+                        <Button
+                            type="submit"
+                            className="py-[24px] w-[80%] mx-auto text-[16px] rounded-3xl cursor-pointer sticky bottom-[20px] z-10 bg-main hover:opacity-80"
+                        >
+                            Хадгалах
+                        </Button>
                     </form>
 
-                    <section className="w-1/2 border-red-500 border relative h-full">
-                        <h1>de</h1>
-                        <LocationMap lat={watch('location').lat} lng={watch('location').lng} />
+                    <section className="w-1/2 border border-blue-500">
+                        <div className="sticky top-[40px]">
+                            <NewPagePreview control={control} previewImage={previewImage} />
+                        </div>
                     </section>
                 </div>
                 <Footer />

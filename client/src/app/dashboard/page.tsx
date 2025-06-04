@@ -46,7 +46,7 @@ import {
 
 import { useNavbarStore } from '@/store/navbarStore';
 import { motion, AnimatePresence } from 'motion/react';
-import { addMinutes, format } from 'date-fns';
+import { addMinutes, format, formatDistanceToNowStrict } from 'date-fns';
 import { mn } from 'date-fns/locale';
 
 export type BookingPage = {
@@ -66,6 +66,7 @@ export type Booking = {
     lng: number;
     lat: number;
     duration: number;
+    createdAt: string;
 };
 
 export default function DashboardPage() {
@@ -79,6 +80,8 @@ export default function DashboardPage() {
 
     const [selectedBooking, setSelectedBooking] = useState('Бүх');
     const [triggeredSearchText, setTriggeredSearchText] = useState('');
+
+    const [selectedDetailBooking, setSelectedDetailBooking] = useState<string>('');
 
     const copyAction = async (text: string) => {
         try {
@@ -196,6 +199,7 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 30,
+            createdAt: '2025-05-29T10:00:00.000Z',
         },
         {
             bookingName: 'Meeting 1',
@@ -206,6 +210,7 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 30,
+            createdAt: '2025-05-29T10:00:00.000Z',
         },
         {
             bookingName: 'Meeting 3',
@@ -216,6 +221,7 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 90,
+            createdAt: '2025-05-27T10:00:00.000Z',
         },
         {
             bookingName: 'Meeting 3',
@@ -226,6 +232,7 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 30,
+            createdAt: '2025-05-27T14:00:00.000Z',
         },
         {
             bookingName: 'Meeting 2 with Temka in barber booking okey broa homei a',
@@ -236,6 +243,7 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 30,
+            createdAt: '2025-05-28T11:00:00.000Z',
         },
         {
             bookingName: 'Meeting 2 with Temka in barber booking okey broa homei a',
@@ -246,6 +254,7 @@ export default function DashboardPage() {
             lat: 0,
             lng: 0,
             duration: 30,
+            createdAt: '2025-05-26T11:00:00.000Z',
         },
     ];
 
@@ -527,21 +536,69 @@ export default function DashboardPage() {
                                                         return (
                                                             <div
                                                                 key={i}
-                                                                className="mb-1 text-sm w-full border-l-[5px] shadow rounded-md border-demo-left px-2.5 py-3.5 flex items-start justify-star pl-5 gap-[20%] relative"
+                                                                className="mb-1 text-sm w-full border-l-[5px] shadow rounded-md border-demo-left px-2.5 py-3.5 relative"
                                                             >
-                                                                <div>
-                                                                    {start} - {end}
-                                                                </div>
-                                                                <div className="flex flex-col items-start justify-center gap-1">
-                                                                    <div className="flex items-center justify-center gap-0.5">
-                                                                        <p>{b.inviteeName}</p>
-                                                                        <p>{b.inviteeEmail}</p>
+                                                                <div className="flex items-start justify-start pl-5 gap-[20%]">
+                                                                    <div>
+                                                                        {start} - {end}
                                                                     </div>
-                                                                    <div>{b.bookingName}</div>
+                                                                    <div className="flex flex-col items-start justify-center gap-1">
+                                                                        <div className="flex items-center justify-center gap-0.5">
+                                                                            <p>{b.inviteeName}</p>
+                                                                            <p>{b.inviteeEmail}</p>
+                                                                        </div>
+                                                                        <div>{b.bookingName}</div>
+                                                                    </div>
+                                                                    <Button
+                                                                        onClick={() => {
+                                                                            const val =
+                                                                                selectedDetailBooking ===
+                                                                                b.isoString
+                                                                                    ? ''
+                                                                                    : b.isoString;
+                                                                            setSelectedDetailBooking(
+                                                                                val,
+                                                                            );
+                                                                        }}
+                                                                        className="absolute right-[10%] top-3.5 cursor-pointer"
+                                                                    >
+                                                                        Дэлгэрэнгүй
+                                                                    </Button>
                                                                 </div>
-                                                                <Button className="absolute right-[10%] top-3.5">
-                                                                    Дэлгэрэнгүй
-                                                                </Button>
+                                                                {selectedDetailBooking ===
+                                                                    b.isoString && (
+                                                                    <div className="pl-5 flex flex-col items-stretch justify-start gap-2.5 relative mt-[30px]">
+                                                                        <hr />
+                                                                        <div className="flex items-center justify-start gap-[25%]">
+                                                                            <p className="font-[500] text-demo-left">
+                                                                                Захиалагч
+                                                                            </p>
+                                                                            <p>{b.inviteeName}</p>
+                                                                        </div>
+                                                                        <div className="flex items-center justify-start gap-[25%]">
+                                                                            <p className="font-[500] text-demo-left">
+                                                                                Имэйл
+                                                                            </p>
+                                                                            <p>{b.inviteeEmail}</p>
+                                                                        </div>
+                                                                        <div className="flex items-center justify-start gap-[25%]">
+                                                                            <p className="font-[500] text-demo-left">
+                                                                                Байршил
+                                                                            </p>
+                                                                            <p>{b.location}</p>
+                                                                        </div>
+
+                                                                        <p className="font-[500] text-demo-left ml-[10%]">
+                                                                            {formatDistanceToNowStrict(
+                                                                                new Date(
+                                                                                    b.isoString,
+                                                                                ),
+                                                                                { locale: mn },
+                                                                            )}{' '}
+                                                                            ийн өмнө
+                                                                        </p>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         );
                                                     })}

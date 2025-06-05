@@ -8,6 +8,6 @@
   "eslint.alwaysShowStatus": true,
   "files.eol": "\n",
   "[prisma]": {
-    "editor.defaultFormatter": "Prisma.prisma-insider"
+    "editor.defaultFormatter": "Prisma.prisma"
   }
 }

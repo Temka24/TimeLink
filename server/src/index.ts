@@ -34,7 +34,7 @@ app.get("/ping", (_: Request, res: Response) => {
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT ?? 3001;
+const PORT = process.env.PORT ?? 5001;
 
 app.listen(PORT, () => {
     console.log(`Server started on ${PORT}`);

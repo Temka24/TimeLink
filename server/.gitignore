@@ -26,3 +26,5 @@ dist/
 
 # Windows системийн файлууд
 Thumbs.db
+
+/src/generated/prisma

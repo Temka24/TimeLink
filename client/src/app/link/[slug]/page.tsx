@@ -60,7 +60,6 @@ const demoDataBookingPage = {
 };
 
 const bookingSchema = z.object({
-    date: z.date().optional(),
     selectedDuration: z.number(),
     selectedSlot: z.string(),
     firstName: z.string().min(2, { message: 'Хамгийн багадаа 2 тэмдэгт' }),
@@ -72,6 +71,8 @@ const bookingSchema = z.object({
 type FormData = z.infer<typeof bookingSchema>;
 
 export default function LinkPage() {
+    const [date, setDate] = useState<Date | undefined>(undefined);
+
     const {
         register,
         handleSubmit,
@@ -81,7 +82,6 @@ export default function LinkPage() {
     } = useForm<FormData>({
         resolver: zodResolver(bookingSchema),
         defaultValues: {
-            date: undefined,
             selectedDuration: 0,
             selectedSlot: '',
             firstName: '',
@@ -101,7 +101,6 @@ export default function LinkPage() {
         monthName: string;
         dayNumber: number;
     } | null>(null);
-    const watchDate = watch('date');
     const watchSelectedDuration = watch('selectedDuration');
     const watchSelectedSlot = watch('selectedSlot');
 
@@ -114,22 +113,22 @@ export default function LinkPage() {
     const slug = useParams().slug;
 
     useEffect(() => {
-        if (watchDate) {
+        if (date) {
             setDateInfo({
-                dayName: weekdays[watchDate?.getDay()],
-                monthName: months[watchDate?.getMonth()],
-                dayNumber: watchDate?.getDate(),
+                dayName: weekdays[date?.getDay()],
+                monthName: months[date?.getMonth()],
+                dayNumber: date?.getDate(),
             });
         }
-    }, [watchDate]);
+    }, [date]);
 
     useEffect(() => {
-        if (watchSelectedSlot && watchDate && watchSelectedDuration !== 0) {
+        if (watchSelectedSlot && date && watchSelectedDuration !== 0) {
             setIsOpenConfirmSection(true);
         } else {
             setIsOpenConfirmSection(false);
         }
-    }, [watchSelectedSlot, watchDate, watchSelectedDuration]);
+    }, [watchSelectedSlot, date, watchSelectedDuration]);
 
     useEffect(() => {
         if (!watchSelectedDuration || !watchSelectedSlot) {
@@ -154,7 +153,7 @@ export default function LinkPage() {
                         className={cn(
                             'px-[20px] bg-demo-left pt-[30px] flex flex-col gap-[15px] duration-500 rounded-2xl items-center justify-start',
                             isOpenConfirmSection ? 'w-full md:min-w-1/3' : 'w-full md:min-w-1/2',
-                            watchDate && 'hidden md:flex',
+                            date && 'hidden md:flex',
                         )}
                     >
                         <div className="w-[70px] aspect-square border-white border-3 rounded-full overflow-hidden">
@@ -175,10 +174,8 @@ export default function LinkPage() {
                                     const day = date.getDay(); // 0-6
                                     return !demoDataBookingPage.activeDays[day]; // true = disable
                                 }}
-                                selected={watchDate}
-                                onSelect={(date) =>
-                                    setValue('date', date, { shouldValidate: true })
-                                }
+                                selected={date}
+                                onSelect={(date) => setDate(date)}
                                 className="rounded-md shadow-md mt-[50px]"
                             />
                         ) : (
@@ -195,7 +192,7 @@ export default function LinkPage() {
                         <div
                             className={cn(
                                 'px-[40px] pt-[30px] items-center flex flex-col gap-[10px] justify-start md:min-w-1/2 w-full',
-                                !watchDate && 'md:flex md:flex-col md:gap-[10px] hidden',
+                                !date && 'md:flex md:flex-col md:gap-[10px] hidden',
                             )}
                         >
                             {dateInfo ? (
@@ -245,7 +242,7 @@ export default function LinkPage() {
                                                 {format(new Date(time), 'HH:mm')}
                                             </div>
                                         ))
-                                    ) : watchDate && watchSelectedDuration ? (
+                                    ) : date && watchSelectedDuration ? (
                                         <p>Энэ өдөр цаг байхгүй байна </p>
                                     ) : (
                                         <p className="text-[14px] text-note text-center mt-[100px] mx-[40px]">
@@ -260,7 +257,8 @@ export default function LinkPage() {
                                 onClick={() => {
                                     setValue('selectedSlot', '');
                                     setValue('selectedDuration', 0);
-                                    setValue('date', undefined);
+                                    setDate(undefined);
+                                    setDateInfo(null);
                                 }}
                             >
                                 <ChevronLeft /> Буцах
@@ -288,8 +286,12 @@ export default function LinkPage() {
                                                 {dateInfo?.dayNumber}
                                             </p>
                                             <p>
-                                                {format(new Date(watchSelectedSlot), 'HH:mm')} -{' '}
-                                                {lastTime}
+                                                {watchSelectedSlot &&
+                                                    format(
+                                                        new Date(watchSelectedSlot),
+                                                        'HH:mm',
+                                                    )}{' '}
+                                                - {lastTime}
                                             </p>
                                         </div>
                                     </div>
@@ -372,7 +374,8 @@ export default function LinkPage() {
                                         onClick={() => {
                                             setValue('selectedSlot', '');
                                             setValue('selectedDuration', 0);
-                                            setValue('date', undefined);
+                                            setDate(undefined);
+                                            setDateInfo(null);
                                         }}
                                     >
                                         <ChevronLeft /> Буцах

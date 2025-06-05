@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(uuid())
+  username     String        @default("Хэрэглэгч")
+  email        String        @unique
+  bookingPages BookingPage[]
+  role         Role          @default(USER)
+  createdAt    DateTime      @default(now())
+}
+
+model BookingPage {
+  id                  Int       @id @default(autoincrement())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id])
+  title               String
+  durations           Json // [30, 45, 60]
+  locationDescription String
+  eventDescription    String    @default("")
+  bookings            Booking[]
+  image               String?
+  activeDays          Json // {0: false,1: true,2: true,3: true,4: true,5: true,6: false,}
+  startHour           Int
+  startMinute         Int
+  endHour             Int
+  endMinute           Int
+  startBreakHour      Int
+  startBreakMinute    Int
+  endBreakHour        Int
+  endBreakMinute      Int
+  increment           Int
+  buffer              Int
+  location            Json // { lat: 47.9185, lng: 106.917 }
+}
+
+model Booking {
+  id               Int         @id @default(autoincrement())
+  bookingPageId    Int
+  bookingPage      BookingPage @relation(fields: [bookingPageId], references: [id])
+  isoString        String
+  duration         Int
+  inviteeFirstName String
+  inviteeLastName  String
+  inviteeEmail     String
+  inviteePhone     String
+  createdAt        DateTime    @default(now())
+}
+
+model Feedback {
+  id        Int      @id @default(autoincrement())
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}

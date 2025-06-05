@@ -51,7 +51,7 @@ import { mn } from 'date-fns/locale';
 
 export type BookingPage = {
     name: string;
-    duration: number;
+    duration: number[];
     location: string;
     bookingLink: string;
     total: number;
@@ -60,8 +60,10 @@ export type BookingPage = {
 export type Booking = {
     bookingName: string;
     isoString: string;
-    inviteeName: string;
+    inviteeFirstName: string;
+    inivteeLastName: string;
     inviteeEmail: string;
+    inviteePhone: string;
     location: string;
     lng: number;
     lat: number;
@@ -132,7 +134,7 @@ export default function DashboardPage() {
         if (triggeredSearchText) {
             filteredBookings = filteredBookings.filter(
                 (book) =>
-                    book.inviteeName
+                    book.inviteeFirstName
                         .toLocaleLowerCase()
                         .includes(triggeredSearchText.toLocaleLowerCase()) ||
                     book.inviteeEmail
@@ -167,7 +169,7 @@ export default function DashboardPage() {
     const demoBookingpages: BookingPage[] = [
         {
             name: 'Meeting 1',
-            duration: 30,
+            duration: [30],
             location: 'Central tower 12 давхар 1201',
             bookingLink:
                 'https://timelink/link/bookingid1111111111111111111111111111111111111111111111111111',
@@ -175,14 +177,14 @@ export default function DashboardPage() {
         },
         {
             name: 'Meeting 2 with Temka in barber booking okey broa homei a',
-            duration: 60,
+            duration: [30, 60],
             location: 'Twin tower 2 давхар 207',
             bookingLink: 'https://timelink/link/bookingid2',
             total: 2,
         },
         {
             name: 'Meeting 3',
-            duration: 90,
+            duration: [90, 120, 45],
             location: 'Ub Hotel 5 давхар 501',
             bookingLink: 'https://timelink/link/bookingid3',
             total: 5,
@@ -194,7 +196,9 @@ export default function DashboardPage() {
             bookingName: 'Meeting 1',
             isoString: '2025-05-29T09:00:00.000Z',
             inviteeEmail: 'bymb@example.com',
-            inviteeName: 'Bymb',
+            inviteeFirstName: 'Bymb',
+            inivteeLastName: 'Tomor',
+            inviteePhone: '12345678',
             location: 'Central tower',
             lat: 0,
             lng: 0,
@@ -205,7 +209,9 @@ export default function DashboardPage() {
             bookingName: 'Meeting 1',
             isoString: '2025-05-30T10:00:00.000Z',
             inviteeEmail: 'test@example.com',
-            inviteeName: 'Temka',
+            inviteeFirstName: 'Temka',
+            inivteeLastName: 'Buyn',
+            inviteePhone: '12345678',
             location: 'Central tower',
             lat: 0,
             lng: 0,
@@ -216,7 +222,9 @@ export default function DashboardPage() {
             bookingName: 'Meeting 3',
             isoString: '2025-05-30T16:00:00.000Z',
             inviteeEmail: 'bymb@example.com',
-            inviteeName: 'Bymb',
+            inviteeFirstName: 'Bymb',
+            inivteeLastName: 'Tomorhuyg',
+            inviteePhone: '12345678',
             location: 'Central tower',
             lat: 0,
             lng: 0,
@@ -227,7 +235,9 @@ export default function DashboardPage() {
             bookingName: 'Meeting 3',
             isoString: '2025-05-29T10:00:00.000Z',
             inviteeEmail: 'bymb@example.com',
-            inviteeName: 'Bymb',
+            inviteeFirstName: 'Bymb',
+            inivteeLastName: 'Tomorhuyg',
+            inviteePhone: '12345678',
             location: 'Central tower',
             lat: 0,
             lng: 0,
@@ -238,7 +248,9 @@ export default function DashboardPage() {
             bookingName: 'Meeting 2 with Temka in barber booking okey broa homei a',
             isoString: '2025-05-28T10:00:00.000Z',
             inviteeEmail: 'bymb@example.com',
-            inviteeName: 'Bymb',
+            inviteeFirstName: 'Bymb',
+            inivteeLastName: 'Last name',
+            inviteePhone: '12345678',
             location: 'Central tower',
             lat: 0,
             lng: 0,
@@ -249,7 +261,9 @@ export default function DashboardPage() {
             bookingName: 'Meeting 2 with Temka in barber booking okey broa homei a',
             isoString: '2025-05-26T10:00:00.000Z',
             inviteeEmail: 'bymb@example.com',
-            inviteeName: 'Bymb',
+            inviteeFirstName: 'Bymb',
+            inivteeLastName: 'okey',
+            inviteePhone: '12345678',
             location: 'Central tower',
             lat: 0,
             lng: 0,
@@ -312,7 +326,11 @@ export default function DashboardPage() {
                                                         {booking.total} захиалга байна
                                                     </span>
                                                     <span className="flex text-[15px] items-center gap-1 justify-center">
-                                                        <Clock size={16} /> {booking.duration} минут
+                                                        <Clock size={16} />({' '}
+                                                        {booking.duration.map((d, ind) => (
+                                                            <p key={ind}>{d} </p>
+                                                        ))}{' '}
+                                                        )минут
                                                     </span>
                                                     <span className="flex text-[15px] items-center gap-1 justify-center">
                                                         <MapPin size={16} /> {booking.location}
@@ -544,8 +562,12 @@ export default function DashboardPage() {
                                                                     </div>
                                                                     <div className="flex flex-col items-start justify-center gap-1">
                                                                         <div className="flex items-center justify-center gap-0.5">
-                                                                            <p>{b.inviteeName}</p>
-                                                                            <p>{b.inviteeEmail}</p>
+                                                                            <p>
+                                                                                {b.inivteeLastName}
+                                                                            </p>
+                                                                            <p>
+                                                                                {b.inviteeFirstName}
+                                                                            </p>
                                                                         </div>
                                                                         <div>{b.bookingName}</div>
                                                                     </div>
@@ -573,19 +595,41 @@ export default function DashboardPage() {
                                                                             <p className="font-[500] text-demo-left">
                                                                                 Захиалагч
                                                                             </p>
-                                                                            <p>{b.inviteeName}</p>
+                                                                            <p className="absolute left-[30%]">
+                                                                                {b.inviteeFirstName}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="flex items-center justify-start gap-[30%]">
+                                                                            <p className="font-[500] text-demo-left">
+                                                                                Овог
+                                                                            </p>
+                                                                            <p className="absolute left-[30%]">
+                                                                                {b.inivteeLastName}
+                                                                            </p>
                                                                         </div>
                                                                         <div className="flex items-center justify-start gap-[25%]">
                                                                             <p className="font-[500] text-demo-left">
                                                                                 Имэйл
                                                                             </p>
-                                                                            <p>{b.inviteeEmail}</p>
+                                                                            <p className="absolute left-[30%]">
+                                                                                {b.inviteeEmail}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="flex items-center justify-start gap-[25%]">
+                                                                            <p className="font-[500] text-demo-left">
+                                                                                Утас
+                                                                            </p>
+                                                                            <p className="absolute left-[30%]">
+                                                                                {b.inviteePhone}
+                                                                            </p>
                                                                         </div>
                                                                         <div className="flex items-center justify-start gap-[25%]">
                                                                             <p className="font-[500] text-demo-left">
                                                                                 Байршил
                                                                             </p>
-                                                                            <p>{b.location}</p>
+                                                                            <p className="absolute left-[30%]">
+                                                                                {b.location}
+                                                                            </p>
                                                                         </div>
 
                                                                         <p className="font-[500] text-demo-left ml-[10%]">

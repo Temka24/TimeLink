@@ -1,10 +1,13 @@
 {
-    "editor.codeActionsOnSave": {
-        "source.fixAll": "always"
-    },
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true,
-    "eslint.validate": ["javascript", "typescript", "typescriptreact"],
-    "eslint.alwaysShowStatus": true,
-    "files.eol": "\n"
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "eslint.validate": ["javascript", "typescript", "typescriptreact"],
+  "eslint.alwaysShowStatus": true,
+  "files.eol": "\n",
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma-insider"
+  }
 }

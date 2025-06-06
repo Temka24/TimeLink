@@ -9,9 +9,9 @@ export default function OuterNavbar() {
                 <Link href="/">
                     <section className="flex items-center justify-center gap-2 cursor-pointer">
                         <Image src="/favicon.png" alt="logo" height={40} width={40} />
-                        <div className="text-[24px] font-semibold flex">
-                            <p className="text-[#914bf1]">Time</p>
-                            <p>Link</p>
+                        <div className="text-[24px] flex">
+                            <p className="text-[#914bf1] font-bold">Time</p>
+                            <p className="font-bold">Link</p>
                         </div>
                     </section>
                 </Link>

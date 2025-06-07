@@ -1,58 +1,70 @@
 'use client';
-import axios from 'axios';
+import Image from 'next/image';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
+import { ChevronLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function Feedback() {
-    const backend_url = process.env.NEXT_PUBLIC_API_URL;
-    const handleSubmit = async () => {
-        try {
-            if (!backend_url) {
-                console.error('backend_url undefined');
-                return;
-            }
-            const res = await axios.post(backend_url, {});
-            console.log(res.data);
-        } catch (err: unknown) {
-            console.error(err);
+    const [subject, setSubject] = useState('');
+    const [message, setMessage] = useState('');
+
+    const router = useRouter();
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (subject === '' || message === '') {
+            toast.error('Бүх талбарыг бөглөнө үү');
+            return;
         }
+        console.log(subject, message);
     };
 
     return (
         <>
             <form
                 onSubmit={handleSubmit}
-                className="flex flex-col items-center justify-center relative min-w-[300px] gap-[25px] max-w-[500px] mx-auto pt-[100px] overflow-x-hidden w-screen shadow-lg rounded-3xl px-[40px] pb-[40px]"
+                className="flex flex-col items-stretch justify-center relative md:mt-[100px] mt-[20px] gap-[25px] w-[90%] md:max-w-[450px] mx-auto pt-[100px] shadow-lg rounded-3xl md:px-[40px] px-2.5 pb-[40px]"
             >
-                <div className="flex flex-row items-center justify-between w-[100%] gap-[20px]">
-                    <input
-                        type="text"
-                        placeholder="Name"
-                        required
-                        className="bg-transparent border-[2px] border-[#2a1454] focus:border-pink-500/70 focus:outline focus:outline-pink-500/70 placeholder:text-joke/50 text-joke rounded-[6px] px-[20px] py-[8px]"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Email"
-                        required
-                        className="bg-transparent border-[2px] border-[#2a1454] focus:border-pink-500/70 focus:outline focus:outline-pink-500/70 placeholder:text-joke/50 text-joke rounded-[6px] px-[20px] py-[8px]"
-                    />
-                </div>
-                <input
+                <section className="flex items-center justify-center gap-2 cursor-pointer scale-75 mt-[-30px] mb-[30px]">
+                    <Image src="/favicon.png" alt="logo" height={40} width={40} />
+                    <div className="text-[24px] font-semibold flex">
+                        <p className="text-[#914bf1]">Time</p>
+                        <p>Link</p>
+                    </div>
+                </section>
+
+                <h1 className="font-bold text-[25px] text-center">Санал хүсэлт</h1>
+                <Button
+                    onClick={() => router.push('/')}
+                    className="absolute top-[20px] left-[20px] text-demo-left border-demo-left cursor-pointer"
+                    variant="outline"
+                    type="button"
+                >
+                    <ChevronLeft /> Буцах
+                </Button>
+                <Input
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Гарчиг оруулна уу"
                     type="text"
-                    placeholder="Subject"
-                    required
-                    className="bg-transparent border-[2px] border-[#2a1454] focus:border-pink-500/70 focus:outline focus:outline-pink-500/70 placeholder:text-joke/50 text-joke rounded-[6px] px-[20px] py-[8px] w-[100%]"
                 />
-                <textarea
-                    rows={7}
-                    required
-                    placeholder="Message"
-                    className="bg-transparent border-[2px] border-[#2a1454] focus:border-pink-500/70 focus:outline focus:outline-pink-500/70 placeholder:text-joke/50 text-joke rounded-[6px] px-[20px] py-[8px] w-[100%]"
+                <Textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Санал хүсэлт оруулна уу"
+                    rows={10}
+                    className="h-[150px]"
                 />
-                <input
-                    type="submit"
-                    value="Submit"
-                    className="border-[2px] border-joke text-joke font-[700] rounded-[20px] px-[25px] py-[10px] self-start ml-[10%] capitalize hover:bg-gradient-to-r from-[#9500ff] via-[#2a1454] to-[#9500ff] bg-[length:300%] cursor-pointer transition-all duration-700 hover:bg-right"
-                />
+                <Button type="submit" className="cursor-pointer">
+                    Илгээх
+                </Button>
+                <p className="text-note md:text-sm text-[11px] text-center">
+                    Таны илгээсэн санал хүсэлт бидэнд маш их тус болох болно
+                </p>
             </form>
         </>
     );

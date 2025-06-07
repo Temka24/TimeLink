@@ -297,9 +297,6 @@ export default function DemoPage() {
                         </div>
                         <h1 className="font-semibold text-[20px]">Амжилттай</h1>
                         <p className="text-[15px] text-note text-center">
-                            Манай захиалгын хуудасны жишээг туршиж үзсэнд баярлалаа.
-                        </p>
-                        <p className="text-[15px] text-note text-center">
                             Хэрэв энэ нь жинхэнэ захиалга байсан бол захиалгийн бүх дэлгэрэнгүй
                             мэдээллийг агуулсан календарийн урилгыг танд имэйлээр илгээх байсан.
                         </p>

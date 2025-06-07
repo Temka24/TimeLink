@@ -52,10 +52,10 @@ export default function HomePage() {
                     Цаг товлолт, уулзалт бүртгэлийг автоматжуул
                     <span className="text-[#914bf1]">хурдан, хялбар, үр дүнтэй шийдэл</span>
                 </h1>
-                <p className="mt-[30px] text-center max-w-[600px] mx-auto text-note tracking-wide">
-                    Цаг товлолтоо илүү хурдан хийж, эцэс төгсгөлгүй имэйл бичхээс салаарай. Таны
-                    өмнөөс бүх асуудлыг шийдэх болно
-                </p>
+                <h4 className="mt-[30px] text-center max-w-[600px] mx-auto text-note tracking-wide">
+                    Цаг товлолтоо илүү хурдан хийж, бүтээмжээ өсгөмөөр байна уу.
+                    <p>Таны өмнөөс бүх асуудлыг шийдэх болно</p>
+                </h4>
                 <div className="flex mt-[60px] items-center justify-center gap-[20px] font-semibold">
                     <Button className="py-[25px] px-[40px] cursor-pointer text-[18px]">
                         <Link href="/dashboard">Эхлэх</Link>

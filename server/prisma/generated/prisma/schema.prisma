@@ -12,6 +12,7 @@ model User {
   id           String        @id @default(uuid())
   username     String        @default("Хэрэглэгч")
   email        String        @unique
+  password     String?
   bookingPages BookingPage[]
   role         Role          @default(USER)
   createdAt    DateTime      @default(now())

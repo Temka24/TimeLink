@@ -9,14 +9,18 @@ import { Readable } from "stream";
 const prisma = new PrismaClient();
 
 // Үүнийг файл дээрээ оруул
-type MulterFile = {
+export interface MulterFile {
     fieldname: string;
     originalname: string;
     encoding: string;
     mimetype: string;
     size: number;
     buffer: Buffer;
-};
+    stream?: Readable;
+    destination?: string;
+    filename?: string;
+    path?: string;
+}
 
 export const getBookingPages: RequestHandler = async (
     req: Request,

@@ -8,6 +8,16 @@ import { Readable } from "stream";
 
 const prisma = new PrismaClient();
 
+// Үүнийг файл дээрээ оруул
+type MulterFile = {
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    size: number;
+    buffer: Buffer;
+};
+
 export const getBookingPages: RequestHandler = async (
     req: Request,
     res: Response,
@@ -125,7 +135,7 @@ const createBookingPageSchema = z.object({
 });
 
 export interface FileRequest extends Request {
-    file?: Express.Multer.File;
+    file?: MulterFile;
 }
 
 export const createBookingPage = async (req: FileRequest, res: Response, next: NextFunction) => {
@@ -159,7 +169,7 @@ export const createBookingPage = async (req: FileRequest, res: Response, next: N
             return;
         }
 
-        const uploadToCloudinary = (file): Promise<string> => {
+        const uploadToCloudinary = (file: MulterFile): Promise<string> => {
             return new Promise((resolve, reject) => {
                 const mime = file.mimetype;
                 let resourceType: "image" | "video" | "raw" = "raw";

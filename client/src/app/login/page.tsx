@@ -1,19 +1,47 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { signIn } from 'next-auth/react';
+import MinimalLoading from '@/components/minimal-loader';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const [loading, setLoading] = useState(false);
+
     const router = useRouter();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [loadingCheck, setLoadingCheck] = useState(true);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await fetch('/api/auth/session');
+                const data = await res.json();
+
+                if (Object.keys(data).length > 0) {
+                    // Session байгаа → /dashboard руу
+                    router.replace('/dashboard');
+                }
+            } catch (err) {
+                console.error('Session шалгах үед алдаа гарлаа:', err);
+            } finally {
+                setLoadingCheck(false);
+            }
+        };
+
+        checkSession();
+    }, [router]);
+
+    if (loadingCheck) return <p>Түр хүлээнэ үү...</p>;
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!email || !password) {
             toast('Та имэйл, нууц үгээ оруулна уу');
@@ -23,9 +51,21 @@ export default function LoginPage() {
             toast('Нууц үг 6 аас их тэмдэгт байх ёстой');
             return;
         }
-        toast.success('Амжилттай нэвтэрлээ', {
-            description: `Email is ${email}, Password is ${password}`,
+
+        setLoading(true);
+        const res = await signIn('credentials', {
+            email,
+            password,
+            redirect: false,
         });
+        setLoading(false);
+
+        if (res?.error) {
+            toast.error(res.error);
+            return;
+        }
+
+        window.location.href = '/dashboard';
     };
 
     return (
@@ -44,6 +84,7 @@ export default function LoginPage() {
                     type="button"
                     variant={'outline'}
                     className="flex items-center justify-center gap-[10px] w-full py-[20px] cursor-pointer"
+                    onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
                 >
                     <Image src="/google_logo.webp" width={30} height={30} alt="logo" />
                     <p>Google ээр нэвтрэх</p>
@@ -83,8 +124,9 @@ export default function LoginPage() {
                     <Button
                         type="submit"
                         className="bg-main hover:bg-main/80 cursor-pointer w-full"
+                        disabled={loading}
                     >
-                        Нэвтрэх
+                        {loading ? <MinimalLoading /> : 'Нэвтрэх'}
                     </Button>
                 </form>
                 <div className="text-sm text-note text-nowrap flex items-center justify-center gap-1">

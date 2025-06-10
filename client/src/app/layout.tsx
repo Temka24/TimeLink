@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { inter } from './font';
 import './globals.css';
-import { Toaster } from '@/components/ui/sonner';
+import Providers from './providers';
 
 export const metadata: Metadata = {
     title: 'Цаг товлолт, захиалгын платформ | TimeLink',
@@ -25,8 +25,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={inter.className}>
-                <main>{children}</main>
-                <Toaster position="top-center" />
+                <Providers>{children}</Providers>
             </body>
         </html>
     );

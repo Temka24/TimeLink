@@ -1,6 +1,11 @@
 'use client';
 import Image from 'next/image';
 import clsx from 'clsx';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/lib/axios';
+import { AxiosError } from 'axios';
+import { toast } from 'sonner';
+import { signOut } from 'next-auth/react';
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -35,8 +40,22 @@ export default function Navbar() {
         }
     };
 
-    const demoUserName = 'Temka B';
-    const demoEmail = 'thxdeadshotxht@gmail.com';
+    const { data: user } = useQuery({
+        queryKey: ['user'],
+        queryFn: async () => {
+            try {
+                const res = await api.get('/getUserInfo');
+                return res.data.user;
+            } catch (err) {
+                const error = err as AxiosError<{ msg: string }>;
+
+                const message = error.response?.data?.msg;
+                toast.error(message);
+                return null;
+            }
+        },
+    });
+
     return (
         <>
             <nav className="flex items-center justify-between gap-[50px] h-[64px] w-full">
@@ -103,12 +122,12 @@ export default function Navbar() {
                                 width={35}
                                 className="rounded-full object-cover h-auto"
                             />
-                            <span>{demoUserName}</span>
+                            <span>{user?.username}</span>
                             <ChevronDown color="#6b7280" size="18px" />
                         </span>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-[240px]">
-                        <DropdownMenuLabel className="text-nowrap">{demoEmail}</DropdownMenuLabel>
+                        <DropdownMenuLabel className="text-nowrap">{user?.email}</DropdownMenuLabel>
                         <DropdownMenuSeparator />
 
                         <Dialog>
@@ -125,7 +144,7 @@ export default function Navbar() {
                                     <DialogTitle>Нэр өөрчлөх</DialogTitle>
                                 </DialogHeader>
                                 <div>
-                                    <input type="text" readOnly value={demoUserName} />
+                                    <input type="text" readOnly value={user?.username} />
                                     <div className="flex items-center justify-end gap-3 font-[500]">
                                         <DialogClose asChild>
                                             <Button variant="outline">Хаах</Button>
@@ -136,7 +155,10 @@ export default function Navbar() {
                             </DialogContent>
                         </Dialog>
 
-                        <DropdownMenuItem className="cursor-pointer text-red-500">
+                        <DropdownMenuItem
+                            onClick={() => signOut({ callbackUrl: '/login' })}
+                            className="cursor-pointer text-red-500"
+                        >
                             Гарах
                         </DropdownMenuItem>
                     </DropdownMenuContent>

@@ -12,6 +12,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import api from '@/lib/axios';
+import { AxiosError } from 'axios';
+import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import MinimalLoading from '@/components/minimal-loader';
 
 const weekdays = ['Ням', 'Даваа', 'Мягмар', 'Лхагва', 'Пүрэв', 'Баасан', 'Бямба'];
 
@@ -30,35 +35,6 @@ const months = [
     'Арванхоёрдугаар сарын',
 ];
 
-const demoDataBookingPage = {
-    title: 'Temka тай уулзах уулз',
-    image: '/avatar.png',
-    locationDescription: 'Улаанбаатар, Central Tower 9 давхар 901',
-    eventDescription: 'evow eko lorem ipsum ewv ew er er ,leljokrjiorko orjokorjoj r r',
-    activeDays: {
-        0: false,
-        1: true,
-        2: true,
-        3: true,
-        4: true,
-        5: true,
-        6: false,
-    } as Record<number, boolean>,
-    slots: [
-        '1970-01-01T09:00:00.000Z',
-        '1970-01-01T10:00:00.000Z',
-        '1970-01-01T11:00:00.000Z',
-        '1970-01-01T12:00:00.000Z',
-        '1970-01-01T14:00:00.000Z',
-        '1970-01-01T15:00:00.000Z',
-        '1970-01-01T16:00:00.000Z',
-        '1970-01-01T17:00:00.000Z',
-        '1970-01-01T18:00:00.000Z',
-    ],
-    durations: [30, 45, 60],
-    location: { lat: 47.9185, lng: 106.917 },
-};
-
 const bookingSchema = z.object({
     selectedDuration: z.number(),
     selectedSlot: z.string(),
@@ -72,6 +48,34 @@ type FormData = z.infer<typeof bookingSchema>;
 
 export default function LinkPage() {
     const [date, setDate] = useState<Date | undefined>(undefined);
+    const [avialableSlots, setAvialableSlots] = useState<string[]>([]);
+
+    const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+    const [isLoadingForm, setIsLoadingForm] = useState(false);
+
+    const router = useRouter();
+    const slug = useParams().slug;
+
+    const {
+        data: bookingInfo,
+        isLoading,
+        isError,
+    } = useQuery({
+        queryKey: ['bookingInfo'],
+        queryFn: async () => {
+            try {
+                const res = await api.get(`/getBookingPageInfoById/${slug}`);
+                return res.data.result;
+            } catch (err) {
+                const error = err as AxiosError<{ msg: string }>;
+
+                const message = error.response?.data?.msg ?? 'Internal Server Error';
+                toast.error(message);
+                return null;
+            }
+        },
+        retry: 1,
+    });
 
     const {
         register,
@@ -91,9 +95,21 @@ export default function LinkPage() {
         },
     });
 
-    const onSubmit = (data: FormData) => {
-        console.log('Form data:', data);
-        setIsOpenSuccess(true);
+    const onSubmit = async (data: FormData) => {
+        try {
+            setIsLoadingForm(true);
+            const res = await api.post(`/registerBooking/${slug}`, data);
+            toast.success(res.data.msg);
+        } catch (err) {
+            const error = err as AxiosError<{ msg: string }>;
+
+            const message = error.response?.data?.msg ?? 'Internal Server Error';
+            toast.error(message);
+            return null;
+        } finally {
+            setIsLoadingForm(false);
+            setIsOpenSuccess(true);
+        }
     };
 
     const [dateInfo, setDateInfo] = useState<{
@@ -108,9 +124,6 @@ export default function LinkPage() {
     const [isOpenMap, setIsOpenMap] = useState<boolean>(false);
     const [isOpenSuccess, setIsOpenSuccess] = useState<boolean>(false);
     const [lastTime, setLastTime] = useState('');
-
-    const router = useRouter();
-    const slug = useParams().slug;
 
     useEffect(() => {
         if (date) {
@@ -139,6 +152,48 @@ export default function LinkPage() {
         setLastTime(formattedTime);
     }, [watchSelectedDuration, watchSelectedSlot]);
 
+    useEffect(() => {
+        if (!watchSelectedDuration || !date || !slug) {
+            return;
+        }
+        const genetareSlots = async () => {
+            try {
+                setIsLoadingSlots(true);
+                const res = await api.post(`/getSlotsByDateAndDuration/${slug}`, {
+                    date,
+                    duration: watchSelectedDuration,
+                });
+
+                const slots = res.data.slots;
+                setAvialableSlots(slots);
+            } catch (err) {
+                const error = err as AxiosError<{ msg: string }>;
+
+                const message = error.response?.data?.msg ?? 'Internal Server Error';
+                toast.error(message);
+                return null;
+            } finally {
+                setIsLoadingSlots(false);
+            }
+        };
+
+        genetareSlots();
+    }, [date, watchSelectedDuration, slug]);
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center mt-[50px]">
+                <MinimalLoading />
+            </div>
+        );
+    }
+
+    if (isError) {
+        return <p>Алдаа гарлаа. Сүлжээг шалгана уу.</p>;
+    }
+
+    if (!bookingInfo) return <p>Хуудас олдсонгүй алдаатай линк байна</p>;
+
     return (
         <>
             <form
@@ -158,31 +213,35 @@ export default function LinkPage() {
                     >
                         <div className="w-[70px] aspect-square border-white border-3 rounded-full overflow-hidden">
                             <Image
-                                src={demoDataBookingPage.image || '/avatar.png'}
+                                src={bookingInfo?.image || '/avatar.png'}
                                 alt="Profile"
                                 width={70}
                                 height={70}
                                 className="w-full h-full"
                             />
                         </div>
-                        <h1 className="text-white text-[22px]">{demoDataBookingPage.title}</h1>
-                        <h2>slug is {slug}</h2>
+                        <h1 className="text-white text-[22px]">{bookingInfo?.title}</h1>
                         {!isOpenConfirmSection ? (
                             <Calendar
                                 mode="single"
                                 disabled={(date) => {
-                                    const day = date.getDay(); // 0-6
-                                    return !demoDataBookingPage.activeDays[day]; // true = disable
+                                    const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+                                    const isInactiveDay = !bookingInfo.activeDays[day]; // activeDays[0..6] = true/false
+
+                                    const isPastDate =
+                                        date < new Date(new Date().setHours(0, 0, 0, 0)); // midnight-оос өмнө байвал өнгөрсөн өдөр гэж үзнэ
+
+                                    return isInactiveDay || isPastDate; // аль нэг нь үнэн байвал disable
                                 }}
                                 selected={date}
                                 onSelect={(date) => setDate(date)}
                                 className="rounded-md shadow-md mt-[50px]"
                             />
                         ) : (
-                            demoDataBookingPage.eventDescription && (
+                            bookingInfo.eventDescription && (
                                 <div>
                                     <p className="text-[14px] mt-4 text-white text-center h-full text-wrap break-words break-after-all">
-                                        {demoDataBookingPage.eventDescription}
+                                        {bookingInfo.eventDescription}
                                     </p>
                                 </div>
                             )
@@ -208,7 +267,7 @@ export default function LinkPage() {
                             <div className="w-full mt-[20px]">
                                 <span className="font-bold text-[14px]">Үргэлжлэх хугацаа</span>
                                 <div className="flex gap-[10px] mt-[10px]">
-                                    {demoDataBookingPage.durations.map((duration, i: number) => (
+                                    {bookingInfo.durations.map((duration: number, i: number) => (
                                         <div
                                             key={i}
                                             onClick={() => setValue('selectedDuration', duration)}
@@ -229,8 +288,18 @@ export default function LinkPage() {
                                     Сонгох боломжтой цагууд
                                 </span>
                                 <div className="flex flex-col gap-[10px] items-center justify-start overflow-y-scroll h-[330px] mt-[10px] pr-[5px]">
-                                    {demoDataBookingPage.slots.length !== 0 ? (
-                                        demoDataBookingPage.slots.map((time, i: number) => (
+                                    {!watchSelectedDuration || !date ? (
+                                        <p className="text-[14px] text-note text-center mt-[100px] mx-[40px]">
+                                            Он сар үргэлжлэх хугацаа сонгоно уу
+                                        </p>
+                                    ) : isLoadingSlots ? (
+                                        <div className="text-[14px] text-note text-center mt-[100px] mx-[40px]">
+                                            <MinimalLoading />
+                                        </div>
+                                    ) : avialableSlots.length === 0 ? (
+                                        <p>Энэ өдөр цаг байхгүй байна </p>
+                                    ) : (
+                                        avialableSlots.map((time: string, i: number) => (
                                             <div
                                                 key={i}
                                                 onClick={() => setValue('selectedSlot', time)}
@@ -242,12 +311,6 @@ export default function LinkPage() {
                                                 {format(new Date(time), 'HH:mm')}
                                             </div>
                                         ))
-                                    ) : date && watchSelectedDuration ? (
-                                        <p>Энэ өдөр цаг байхгүй байна </p>
-                                    ) : (
-                                        <p className="text-[14px] text-note text-center mt-[100px] mx-[40px]">
-                                            Он сар үргэлжлэх хугацаа сонгоно уу
-                                        </p>
                                     )}
                                 </div>
                             </div>
@@ -356,8 +419,9 @@ export default function LinkPage() {
                                         <Button
                                             type="submit"
                                             className="absolute bottom-[20px] right-[20px] text-white bg-demo-left cursor-pointer"
+                                            disabled={isLoadingForm}
                                         >
-                                            Захиалах
+                                            {isLoadingForm ? <MinimalLoading /> : 'Захиалах'}
                                         </Button>
                                     </section>
 
@@ -391,11 +455,11 @@ export default function LinkPage() {
                                     key="B"
                                 >
                                     <LocationMap
-                                        lat={demoDataBookingPage.location.lat}
-                                        lng={demoDataBookingPage.location.lng}
+                                        lat={bookingInfo.location.lat}
+                                        lng={bookingInfo.location.lng}
                                     />
                                     <p className="mt-[20px] text-note">
-                                        {demoDataBookingPage.locationDescription}
+                                        {bookingInfo.locationDescription}
                                     </p>
                                     <Button
                                         onClick={() => setIsOpenMap(false)}
@@ -445,7 +509,7 @@ export default function LinkPage() {
                             </div>
                             <div className="flex gap-2 items-start justify-center font-[500]">
                                 <MapPin />
-                                {demoDataBookingPage.locationDescription}
+                                {bookingInfo.locationDescription}
                             </div>
                         </div>
                         <p className="text-[15px] text-center text-note mt-[20px] pt-[20px]">

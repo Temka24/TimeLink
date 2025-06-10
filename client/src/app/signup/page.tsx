@@ -1,21 +1,51 @@
 'use client';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { AxiosError } from 'axios';
+import api from '@/lib/axios';
+import { signIn } from 'next-auth/react';
+import MinimalLoading from '@/components/minimal-loader';
 
 export default function Signup() {
     const router = useRouter();
+
+    const [loading, setLoading] = useState(false);
 
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const [loadingCheck, setLoadingCheck] = useState(true);
+
+    useEffect(() => {
+        const checkSession = async () => {
+            try {
+                const res = await fetch('/api/auth/session');
+                const data = await res.json();
+
+                if (Object.keys(data).length > 0) {
+                    // Session байгаа → /dashboard руу
+                    router.replace('/dashboard');
+                }
+            } catch (err) {
+                console.error('Session шалгах үед алдаа гарлаа:', err);
+            } finally {
+                setLoadingCheck(false);
+            }
+        };
+
+        checkSession();
+    }, [router]);
+
+    if (loadingCheck) return <p>Түр хүлээнэ үү...</p>;
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!email || !username || !password || !confirmPassword) {
             toast('Та бүх талбарыг оруулна уу');
@@ -30,10 +60,33 @@ export default function Signup() {
             return;
         }
 
-        toast.success('Амжилттай бүртгэлдээ', {
-            description: `Email is ${email}, Password is ${password}, username is ${username}`,
-        });
-        console.log(email, password, confirmPassword);
+        try {
+            setLoading(true);
+            const res = await api.post('/signup', {
+                email,
+                username,
+                password,
+            });
+            toast.success(res.data.msg);
+
+            const response = await signIn('credentials', {
+                email,
+                password,
+                redirect: false, // ⛔ redirect хийгүүлэхгүйн тулд false
+            });
+
+            if (response?.error) {
+                toast.error(response.error); // 👈 authorize() доторх Error message
+                return;
+            }
+
+            window.location.href = '/dashboard';
+        } catch (err) {
+            const error = err as AxiosError<{ msg: string }>;
+            toast.error(error.response?.data?.msg || 'Бүртгэлтэй алдаа гарлаа');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -52,6 +105,7 @@ export default function Signup() {
                     type="button"
                     variant={'outline'}
                     className="flex items-center justify-center gap-[10px] w-full py-[20px] cursor-pointer"
+                    onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
                 >
                     <Image src="/google_logo.webp" width={30} height={30} alt="logo" />
                     <p>Google ээр бүртгүүлэх</p>
@@ -116,8 +170,9 @@ export default function Signup() {
                     <Button
                         type="submit"
                         className="bg-main hover:bg-main/80 cursor-pointer w-full"
+                        disabled={loading}
                     >
-                        Бүртгүүлэх
+                        {loading ? <MinimalLoading /> : 'Бүртгүүлэх'}
                     </Button>
                 </form>
                 <div className="text-sm text-note text-nowrap flex items-center justify-center gap-1">

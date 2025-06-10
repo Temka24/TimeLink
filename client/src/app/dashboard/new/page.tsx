@@ -4,6 +4,13 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dynamic from 'next/dynamic';
+import api from '@/lib/axios';
+import { AxiosError } from 'axios';
+import { toast } from 'sonner';
+import MinimalLoading from '@/components/minimal-loader';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { useGetUserInfo } from '@/hooks/useUser';
 
 const LocationPicker = dynamic(() => import('@/components/features/LocationPicker'), {
     ssr: false,
@@ -96,7 +103,9 @@ const EventSchema = z
 export type EventFormType = z.infer<typeof EventSchema>;
 
 export default function NewPage() {
-    const demoUserName = 'Temka B';
+    const { data: user } = useGetUserInfo();
+    const [isLoading, setIsLoading] = useState(false);
+    const queryClient = useQueryClient();
 
     const dayNames: Record<number, string> = {
         0: 'Ням',
@@ -118,7 +127,7 @@ export default function NewPage() {
     } = useForm<EventFormType>({
         resolver: zodResolver(EventSchema),
         defaultValues: {
-            title: `${demoUserName} тай уулзах`,
+            title: `${user?.username} тай уулзах`,
             image: undefined,
             locationDescription: '',
             eventDescription: '',
@@ -146,8 +155,31 @@ export default function NewPage() {
         },
     });
 
-    const onSubmit = (data: EventFormType) => {
-        console.log('form data', data);
+    const onSubmit = async (data: EventFormType) => {
+        const formData = new FormData();
+
+        const { image, ...rest } = data;
+        formData.append('data', JSON.stringify(rest));
+
+        if (image instanceof File) {
+            formData.append('image', image);
+        }
+
+        try {
+            setIsLoading(true);
+            const res = await api.post('/createBookingPage', formData);
+            toast.success(res.data.msg);
+            queryClient.invalidateQueries({ queryKey: ['bookingPages'] });
+            window.location.href = '/dashboard';
+        } catch (err) {
+            const error = err as AxiosError<{ msg: string }>;
+
+            const message = error.response?.data?.msg;
+            toast.error(message);
+            return null;
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const timeOptions = Array.from({ length: 48 }, (_, i) => {
@@ -587,8 +619,9 @@ export default function NewPage() {
                         <Button
                             type="submit"
                             className="py-[24px] w-[80%] mx-auto text-[16px] rounded-3xl cursor-pointer sticky bottom-[20px] z-10 bg-main hover:opacity-80"
+                            disabled={isLoading}
                         >
-                            Үүсгэх
+                            {isLoading ? <MinimalLoading /> : 'Үүсгэх'}
                         </Button>
                     </form>
 

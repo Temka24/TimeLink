@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/prisma"
 }
 
 datasource db {
@@ -10,25 +9,23 @@ datasource db {
 
 model User {
   id           String        @id @default(uuid())
-  username     String        @default("Хэрэглэгч")
   email        String        @unique
+  createdAt    DateTime      @default(now())
+  role         Role          @default(USER)
+  username     String        @default("Хэрэглэгч")
   password     String?
   bookingPages BookingPage[]
-  role         Role          @default(USER)
-  createdAt    DateTime      @default(now())
 }
 
 model BookingPage {
   id                  Int       @id @default(autoincrement())
   userId              String
-  user                User      @relation(fields: [userId], references: [id])
   title               String
-  durations           Json // [30, 45, 60]
+  durations           Json
   locationDescription String
   eventDescription    String    @default("")
-  bookings            Booking[]
   image               String?
-  activeDays          Json // {0: false,1: true,2: true,3: true,4: true,5: true,6: false,}
+  activeDays          Json
   startHour           Int
   startMinute         Int
   endHour             Int
@@ -39,13 +36,14 @@ model BookingPage {
   endBreakMinute      Int
   increment           Int
   buffer              Int
-  location            Json // { lat: 47.9185, lng: 106.917 }
+  location            Json
+  bookings            Booking[]
+  user                User      @relation(fields: [userId], references: [id])
 }
 
 model Booking {
   id               Int         @id @default(autoincrement())
   bookingPageId    Int
-  bookingPage      BookingPage @relation(fields: [bookingPageId], references: [id])
   isoString        String
   duration         Int
   inviteeFirstName String
@@ -53,6 +51,9 @@ model Booking {
   inviteeEmail     String
   inviteePhone     String
   createdAt        DateTime    @default(now())
+  bookingPage      BookingPage @relation(fields: [bookingPageId], references: [id])
+
+  @@unique([bookingPageId, isoString])
 }
 
 model Feedback {

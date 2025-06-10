@@ -6,7 +6,8 @@ import type { NextRequest } from 'next/server';
 export async function middleware(req: NextRequest) {
     const token = await getToken({
         req,
-        secret: process.env.NEXTAUTH_SECRET, // 🧠 Энийг always дамжуул
+        secret: process.env.NEXTAUTH_SECRET,
+        cookieName: 'next-auth.session-token',
     });
 
     // 🔐 Token байхгүй бол login руу redirect хийнэ
@@ -20,4 +21,5 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
     matcher: ['/dashboard/:path*'],
+    runtime: 'nodejs',
 };

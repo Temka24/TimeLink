@@ -1,5 +1,5 @@
 import express, { Express, Request, Response } from "express";
-import cors, { CorsOptions } from "cors";
+import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/errorHandler.js";
@@ -12,7 +12,7 @@ dotenv.config();
 const app: Express = express();
 
 app.set("trust proxy", 1);
-
+/*
 const allowedOrigins = [
     "http://localhost:3000", // Swagger UI (if hosted here)
     "https://timelink.mn", // Real frontend domain (prod)
@@ -33,6 +33,14 @@ const corsOptions: CorsOptions = {
     credentials: true,
 };
 app.use(cors(corsOptions));
+*/
+app.use(
+    cors({
+        origin: "https://time-link.vercel.app",
+        credentials: true,
+    }),
+);
+
 app.use(express.json());
 app.use(cookieParser());
 

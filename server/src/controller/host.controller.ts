@@ -8,7 +8,6 @@ import { Readable } from "stream";
 
 const prisma = new PrismaClient();
 
-// Үүнийг файл дээрээ оруул
 export interface MulterFile {
     fieldname: string;
     originalname: string;
@@ -16,7 +15,7 @@ export interface MulterFile {
     mimetype: string;
     size: number;
     buffer: Buffer;
-    stream?: Readable;
+    stream: Readable;
     destination?: string;
     filename?: string;
     path?: string;

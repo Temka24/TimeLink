@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "https://timelink-ixuv.onrender.com/api/$1"
+        }
+    ]
+}

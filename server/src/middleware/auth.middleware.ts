@@ -15,10 +15,12 @@ export interface AuthenticatedRequest extends Request {
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = req.cookies["next-auth.session-token"];
+        const token =
+            req.cookies["next-auth.session-token"] ||
+            req.cookies["__Secure-next-auth.session-token"];
 
         if (!token) {
-            res.status(401).json({ msg: "Token хугацаа дууссан байна нэвтрэнэ үү" });
+            res.status(401).json({ msg: "Token байхгүй байна нэвтрэнэ үү" });
             return;
         }
 

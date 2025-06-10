@@ -11,6 +11,8 @@ dotenv.config();
 
 const app: Express = express();
 
+app.set("trust proxy", 1);
+
 const allowedOrigins = [
     "http://localhost:3000", // Swagger UI (if hosted here)
     "https://timelink.mn", // Real frontend domain (prod)

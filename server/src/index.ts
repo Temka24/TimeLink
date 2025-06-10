@@ -13,12 +13,15 @@ const app: Express = express();
 
 app.set("trust proxy", 1);
 
-app.use(
-    cors({
-        origin: "https://timelink.mn",
-        credentials: true,
-    }),
-);
+const corsOptions = {
+    origin: "https://timelink.mn",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 app.use(express.json());
 app.use(cookieParser());

@@ -5,7 +5,6 @@ import { RequestHandler } from "express";
 import { AuthenticatedRequest } from "../middleware/auth.middleware";
 import cloudinary from "../service/cloudinary.js";
 import { Readable } from "stream";
-import type { File } from "multer";
 
 const prisma = new PrismaClient();
 
@@ -126,7 +125,7 @@ const createBookingPageSchema = z.object({
 });
 
 export interface FileRequest extends Request {
-    file?: File;
+    file?: Express.Multer.File;
 }
 
 export const createBookingPage = async (req: FileRequest, res: Response, next: NextFunction) => {
@@ -160,7 +159,7 @@ export const createBookingPage = async (req: FileRequest, res: Response, next: N
             return;
         }
 
-        const uploadToCloudinary = (file: File): Promise<string> => {
+        const uploadToCloudinary = (file: Express.Multer.File): Promise<string> => {
             return new Promise((resolve, reject) => {
                 const mime = file.mimetype;
                 let resourceType: "image" | "video" | "raw" = "raw";

@@ -12,31 +12,10 @@ dotenv.config();
 const app: Express = express();
 
 app.set("trust proxy", 1);
-/*
-const allowedOrigins = [
-    "http://localhost:3000", // Swagger UI (if hosted here)
-    "https://timelink.mn", // Real frontend domain (prod)
-    "https://time-link.vercel.app",
-];
 
-const corsOptions: CorsOptions = {
-    origin: (
-        origin: string | undefined,
-        callback: (err: Error | null, allow?: boolean) => void,
-    ) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
-    credentials: true,
-};
-app.use(cors(corsOptions));
-*/
 app.use(
     cors({
-        origin: "https://time-link.vercel.app",
+        origin: "https://timelink.mn",
         credentials: true,
     }),
 );

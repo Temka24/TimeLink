@@ -15,9 +15,7 @@ export interface AuthenticatedRequest extends Request {
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token =
-            req.cookies["next-auth.session-token"] ||
-            req.cookies["__Secure-next-auth.session-token"];
+        const token = req.cookies["__Secure-next-auth.session-token"];
 
         if (!token) {
             res.status(401).json({ msg: "Token байхгүй байна нэвтрэнэ үү" });
@@ -27,6 +25,8 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         const payload = (await getToken({
             req,
             secret: process.env.NEXTAUTH_SECRET!,
+            cookieName: "__Secure-next-auth.session-token",
+            secureCookie: process.env.NODE_ENV === "development" ? false : true,
         })) as TokenPayload;
 
         if (!payload || typeof payload !== "object" || !("email" in payload)) {
@@ -38,7 +38,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     } catch (err) {
         res.status(401).json({ msg: "Token шалгахад алдаа гарлаа нэвтрэнэ үү" });
         console.error("Token шалгахад алдаа гарлаа");
-        console.log(req.cookies["next-auth.session-token"]);
+        console.log(req.cookies["__Secure-next-auth.session-token"]);
         console.error(err);
         return;
     }

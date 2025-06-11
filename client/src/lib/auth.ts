@@ -68,9 +68,10 @@ export const authOptions: AuthOptions = {
             name: `__Secure-next-auth.session-token`,
             options: {
                 httpOnly: true,
-                sameSite: 'lax',
+                sameSite: 'none',
                 path: '/',
                 secure: process.env.NODE_ENV === 'development' ? false : true,
+                domain: '.timelink.mn',
             },
         },
     },
